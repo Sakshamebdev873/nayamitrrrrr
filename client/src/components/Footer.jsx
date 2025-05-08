@@ -1,12 +1,17 @@
 import React from 'react';
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaFacebookF, FaTwitter, FaLinkedinIn } from 'react-icons/fa';
+import { useLocation } from 'react-router';
 
 export function Footer() {
+  const {pathname} = useLocation()
   return (
-    <footer className="bg-blue-900/90 text-white py-10 px-6">
+    <>
+    {pathname === '/chat' ? <></> : pathname === '/login' || pathname === '/signup' ? <>
+    
+    </>:<>
+      <footer className="bg-blue-900/90 text-white py-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
-        {/* Column 1: Contact */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
           <ul className="space-y-3 text-sm">
@@ -53,6 +58,7 @@ export function Footer() {
         </div>
 
       </div>
-    </footer>
+    </footer></> }
+    </>
   );
 }
