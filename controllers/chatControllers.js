@@ -4,7 +4,7 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
-import axios from 'axios'
+import axios from "axios";
 import fs from "fs";
 import path from "path";
 import pdfParse from "pdf-parse";
@@ -45,13 +45,11 @@ Do not skip directly to solutions. Always listen first.
   return prompts[lang] || prompts["en"];
 };
 
-
-
 export const createChat = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { prompt, language } = req.body;
+  const { prompt } = req.body;
 
-  const user = await User.findById(id);
+  const user = await User.findById(String(id));
   if (!user) {
     return res.status(400).json({ msg: "User not found" });
   }
@@ -83,91 +81,133 @@ export const createChat = asyncHandler(async (req, res) => {
     content: msg.role === "user" ? msg.prompt : msg.response,
   }));
 
-  const legalSystemPrompt = getLegalSystemPrompt(language);
-
+  const legalSystemPrompt = `
+  You are an AI legal assistant integrated into the Department of Justice website, focused on Indian laws and services.
+  
+  📝 **Important instructions**:
+  - Detect the user's language from the query.
+  - Reply entirely in that detected language (e.g., Hindi, Tamil, Bengali, English).
+  - Do not mix languages. Use only one language consistently in your response.
+  
+  🎯 **Your goal is to understand the user's legal situation by first asking for more context.** Only once you have sufficient details, you should:
+  1. Identify possible **legal violations** (e.g., domestic violence, workplace harassment, property dispute, etc.).
+  2. Share **relevant helpline numbers** or emergency contacts.
+  3. Explain **legal protections, rights, or remedies** available under Indian law.
+  4. Suggest **safe and actionable next steps** (e.g., where to file a complaint, how to draft an FIR, who to contact).
+  
+  ✅ **Your response must**:
+  - Begin by **asking for more context** in a caring, supportive, and non-judgmental tone.
+  - Never give personal legal advice or make assumptions without facts.
+  - Be written in **plain, simple language**.
+  - Be aligned with **official Indian legal procedures**.
+  
+  💬 **Example**:
+  User: *"My husband is hurting me and drinking every night."*  
+  You: *"I'm really sorry you're going through this. Could you tell me a bit more—does he physically harm you, or threaten or control you in other ways? Knowing a little more will help me guide you better under Indian law."*
+  
+  ❌ Do not skip directly to solutions.  
+  👂 Always listen and ask for context first.
+  `.trim();
+  
   const historyText = history
     .map(
       (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
     )
     .join("\n");
 
-  // Combine everything into the full prompt
-  const fullPrompt = `
-  ${legalSystemPrompt}
-  
-  Conversation History:
-  ${historyText}
-  
-  User's Query (in ${language}): "${prompt}"
-  
-  Respond in the same language as the user's query. If the user's language is Hindi, reply entirely in Hindi.
-  `.trim();
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: fullPrompt,
-    });
-
-    const outputText = response.text.trim();
-
-    if (!session) {
-      const titleResponse = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
-        contents: `Create a two word title according to : "${prompt}"`,
-      });
-
-      const title = titleResponse.text.trim();
-
-      session = {
-        sessionId,
-        title,
-        messages: [],
-      };
-
-      user.chatSession.push(session);
-    }
-
-    session.messages.push(
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: [
       {
         role: "user",
-        prompt,
-        response: "",
-        tokensUsed: "",
-        timestamp: new Date(),
+        parts: [
+          { text: legalSystemPrompt },
+          { text: `Conversation History:\n${historyText}` },
+          { text: `User's Query: "${prompt}"` },
+        ],
       },
-      {
-        role: "assistant",
-        prompt: "",
-        response: outputText,
-        tokensUsed: "",
-        timestamp: new Date(),
-      }
-    );
+    ],
+  });
 
-    user.markModified("chatSession");
-    await user.save();
+  const outputText = response.text.trim();
 
-    res.status(200).json({
-      msg: outputText,
-      sessionId,
+  // If new session, create one and push it to the user
+  if (!session) {
+    const titleResponse = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Create a two-word title summarizing this user input: "${prompt}"`,
+            },
+          ],
+        },
+      ],
     });
-  } catch (error) {
-    console.error("Error during the chat creation:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred during the chat creation." });
+
+    const title = titleResponse.text.trim();
+
+    const newSession = {
+      sessionId,
+      title,
+      messages: [],
+    };
+
+    user.chatSession.push(newSession);
+    session = user.chatSession[user.chatSession.length - 1];
   }
+
+  // Push user and assistant messages
+  session.messages.push(
+    {
+      role: "user",
+      prompt,
+      response: "",
+      tokensUsed: "",
+      timestamp: new Date(),
+    },
+    {
+      role: "assistant",
+      prompt: "",
+      response: outputText,
+      tokensUsed: "",
+      timestamp: new Date(),
+    }
+  );
+
+  user.markModified("chatSession");
+  await user.save();
+
+  res.status(200).json({
+    msg: outputText,
+    sessionId,
+  });
 });
 
-
-
 export const getHistory = asyncHandler(async (req, res) => {
-  const {id} = req.params
-  const user = await User.findById(id)
-  if(!user){
-    return res.status(400).json({msg : "User does not exists"})
+  const { id } = req.params;
+  const sessionId = (req.signedCookies.sessionId || "").trim();
+
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(400).json({ msg: "User does not exist" });
   }
-  res.status(200).json({history : user.chatSession})
+
+  const allSessions = user.chatSession || [];
+
+  const currentSession = allSessions.find(
+    (session) => session.sessionId.trim() === sessionId
+  );
+  const otherSessions = allSessions.filter(
+    (session) => session.sessionId.trim() !== sessionId
+  );
+
+  res.status(200).json({
+    currentSession: currentSession || null,
+    otherSessions,
+  });
 });
 
 export const getNearbyJudiciaryOSM = async (req, res) => {
@@ -213,7 +253,6 @@ export const getNearbyJudiciaryOSM = async (req, res) => {
   }
 };
 
-
 const surveyQuestions = [
   "Are you aware of your fundamental rights?",
   "Have you ever faced discrimination based on gender, caste, religion, or any other factor?",
@@ -221,11 +260,12 @@ const surveyQuestions = [
   "Are you aware of how to file a complaint regarding legal violations?",
   "Do you feel your rights are protected by the current legal system?",
 ];
-export const surveyQuestion = async (req,res) =>{
-  res.status(200).json({questions: surveyQuestions})
-}
+export const surveyQuestion = async (req, res) => {
+  res.status(200).json({ questions: surveyQuestions });
+};
 
 // Helper function to generate the prompt for Gemini LLM
+
 const generateGeminiPrompt = (responses) => {
   const [q1, q2, q3, q4, q5] = responses;
 
@@ -243,8 +283,14 @@ Based on these responses, analyze whether any of the user's fundamental rights a
 // Helper function to analyze Gemini's response
 const analyzeRightsViolation = (analysis) => {
   // Check for certain keywords in Gemini's response to determine if rights are violated
-  const violationKeywords = ["discrimination", "violated", "unlawful", "infringed", "denied"];
-  
+  const violationKeywords = [
+    "discrimination",
+    "violated",
+    "unlawful",
+    "infringed",
+    "denied",
+  ];
+
   for (const keyword of violationKeywords) {
     if (analysis.toLowerCase().includes(keyword)) {
       return true;
@@ -254,7 +300,7 @@ const analyzeRightsViolation = (analysis) => {
   return false;
 };
 
-export const submitSurvey = asyncHandler(async(req,res) =>{
+export const submitSurvey = asyncHandler(async (req, res) => {
   const { userId, responses } = req.body;
 
   if (!userId || !responses || responses.length !== surveyQuestions.length) {
@@ -281,13 +327,15 @@ export const submitSurvey = asyncHandler(async(req,res) =>{
         ? "Potential violation of rights detected. Please take necessary actions."
         : "No rights violations detected. Your rights are protected.",
       analysis: analysis,
-      Suggestion : violationDetected ? "Please let me help you to file an FIR " : "You are safe...."
+      Suggestion: violationDetected
+        ? "Please let me help you to file an FIR "
+        : "You are safe....",
     });
   } catch (err) {
     console.error("Survey submission error:", err);
     res.status(500).json({ error: "Failed to analyze the survey." });
   }
-})
+});
 export const suggestAlternativeResolution = async (req, res) => {
   const { caseType, details } = req.body;
 
@@ -319,8 +367,6 @@ export const suggestAlternativeResolution = async (req, res) => {
   Make your response easy to understand and useful for a non-lawyer citizen.
   If needed, suggest next steps or helplines too.
   `;
-  
-  
 
   try {
     const result = await ai.models.generateContent({
@@ -329,7 +375,6 @@ export const suggestAlternativeResolution = async (req, res) => {
     });
     const response = await result.text.trim();
     // const text = response.candidates?.[0]?.content?.parts?.[0]?.text || "No content generated.";
-
 
     res.status(200).json({
       message: "Alternative resolution suggestion generated successfully.",
@@ -341,8 +386,6 @@ export const suggestAlternativeResolution = async (req, res) => {
   }
 };
 
-
-
 export const analyzePdf = async (req, res) => {
   try {
     const filePath = path.join(process.cwd(), req.file.path);
@@ -350,11 +393,12 @@ export const analyzePdf = async (req, res) => {
     const data = await pdfParse(fileBuffer);
     const extractedText = data.text;
 
-    const result = ai.models.generateContent({ model: "gemini-2.0-flash",contents : `Summarize this legal document:\n\n${extractedText}` });
-      
-  
-    const summary = await result.text;
+    const result = ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: `Summarize this legal document:\n\n${extractedText}`,
+    });
 
+    const summary = await result.text;
 
     res.status(200).json({
       summary,
@@ -365,206 +409,6 @@ export const analyzePdf = async (req, res) => {
     res.status(500).json({ error: "Failed to analyze PDF" });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // // Initialize the OAuth2 client.
 // const oAuth2Client = new OAuth2Client({
@@ -706,4 +550,3 @@ export const analyzePdf = async (req, res) => {
 //     res.status(500).json({ error: 'Failed to generate document: ' + err.message });
 //   }
 // });
-

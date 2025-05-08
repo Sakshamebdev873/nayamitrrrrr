@@ -1,6 +1,17 @@
 import React from "react";
-import { Form } from "react-router";
-
+import { Form, redirect } from "react-router";
+import customFetch from "../utils/customFetch";
+export const action = async ({ request }) => {
+  const formdata = await request.formData();
+  const data = Object.fromEntries(formdata);
+  try {
+    await customFetch.post("/register", data);
+    return redirect("/login");
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 const SignUp = () => {
   return (
     <>
@@ -9,8 +20,7 @@ const SignUp = () => {
           Begin your journey to justice
         </h1>
         <div className="bg-[#4F46E5] w-[665px] h-[32px] border-none mt-4 rounded-4xl "></div>
-        <Form className="mt-4 w-[672px] rounded-[12px]  shadow-2xl h-[848px] ">
-         
+        <Form method="post" className="mt-4 w-[672px] rounded-[12px]  shadow-2xl h-[848px] ">
           <div className="flex flex-col gap-4 mt-7 px-8">
             <h1 className="text-[20px] leading-[20px] font-semibold  ">
               Basic Information
@@ -33,7 +43,7 @@ const SignUp = () => {
                 </h1>
                 <input
                   type="text"
-                  name="LastName"
+                  name="lastName"
                   id="LastName"
                   className="w-[292px] h-[42px] rounded-[8px] mt-2 border border-[#D1D5DB] "
                 />
@@ -52,7 +62,7 @@ const SignUp = () => {
             </div>
             <div className="mt-4">
               <h1 className="font-medium text-[14px] leading-[100%] text-[#374151] ">
-               Email Address
+                Email Address
               </h1>
               <input
                 type="email"
@@ -63,7 +73,7 @@ const SignUp = () => {
             </div>
             <div className="mt-4">
               <h1 className="font-medium text-[14px] leading-[100%] text-[#374151] ">
-               Create Password
+                Create Password
               </h1>
               <input
                 type="password"
@@ -74,7 +84,7 @@ const SignUp = () => {
             </div>
             <div className="mt-4">
               <h1 className="font-medium text-[14px] leading-[100%] text-[#374151] ">
-               Confirm Password
+                Confirm Password
               </h1>
               <input
                 type="password"
@@ -85,7 +95,7 @@ const SignUp = () => {
             </div>
             <div className="mt-4">
               <h1 className="font-medium text-[14px] leading-[100%] text-[#374151] ">
-              Date of Birth
+                Date of Birth
               </h1>
               <input
                 type="date"
@@ -94,21 +104,33 @@ const SignUp = () => {
                 className="mt-2 w-[608px] h-[42px] rounded-[8px] px-2 border border-[#D1D5DB]  "
               />
             </div>
-            <div className="w-[608px] h-[72px] flex flex-col mt-6 px-4 rounded-[8px] bg-[#F9FAFB]  " >
-<h1 className="font-medium text-[16px] leading-[16px] mt-2 text-[#1F2937]">Your Data is secure</h1>
-<h1 className="font-normal text-[14px] leading-[14px] mt-2 text-[#4B5563] ">We use industry-standard encryption to protect your personal information</h1>
+            <div className="w-[608px] h-[72px] flex flex-col mt-6 px-4 rounded-[8px] bg-[#F9FAFB]  ">
+              <h1 className="font-medium text-[16px] leading-[16px] mt-2 text-[#1F2937]">
+                Your Data is secure
+              </h1>
+              <h1 className="font-normal text-[14px] leading-[14px] mt-2 text-[#4B5563] ">
+                We use industry-standard encryption to protect your personal
+                information
+              </h1>
             </div>
-            <button type="submit" className="bg-[#4F46E5] w-[608px] h-[42px] rounded-[8px] cursor-pointer text-white mt-4" >Continue</button>
+            <button
+              type="submit"
+              className="bg-[#4F46E5] w-[608px] h-[42px] rounded-[8px] cursor-pointer text-white mt-4"
+            >
+              Register
+            </button>
           </div>
         </Form>
       </div>
-      <div className="mt-12 flex flex-col justify-center items-center text-[#4B5563] gap-4 pb-8" >
-<h1 className="font-normal text-[14px] leading-[14px]" >© 2025 Nyay Mitra. All rights reserved.</h1>
-<div className="flex gap-2 font-normal text-[14px] leading-[14px] " >
-<h1>Terms of Service</h1>
-<h1>Contact</h1>
-<h1>Privacy Policy</h1>
-</div>
+      <div className="mt-12 flex flex-col justify-center items-center text-[#4B5563] gap-4 pb-8">
+        <h1 className="font-normal text-[14px] leading-[14px]">
+          © 2025 Nyay Mitra. All rights reserved.
+        </h1>
+        <div className="flex gap-2 font-normal text-[14px] leading-[14px] ">
+          <h1>Terms of Service</h1>
+          <h1>Contact</h1>
+          <h1>Privacy Policy</h1>
+        </div>
       </div>
     </>
   );

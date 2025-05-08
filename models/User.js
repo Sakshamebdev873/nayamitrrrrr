@@ -7,13 +7,13 @@ const chatSessionSchema = new mongoose.Schema(
     },
     title: {
       type: String,
-      default: 'Untitled Chat',
+      default: "Untitled Chat",
     },
     messages: [
       {
         role: {
           type: String,
-          enum: ['user', 'assistant'],
+          enum: ["user", "assistant"],
           required: true,
         },
         prompt: String,
@@ -31,7 +31,11 @@ const chatSessionSchema = new mongoose.Schema(
 
 const UserSchema = new mongoose.Schema(
   {
-    name: {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
       type: String,
       required: true,
     },
@@ -43,7 +47,19 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    chatSession : [chatSessionSchema]
+    confirmPassword: {
+      type: String,
+      required: true,
+    },
+    number: {
+      type: Number,
+      required: true,
+    },
+    date: {
+      type: String,
+      required: true,
+    },
+    chatSession: [chatSessionSchema],
   },
   { timestamps: true }
 );

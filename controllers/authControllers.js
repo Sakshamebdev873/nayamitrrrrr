@@ -4,7 +4,10 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, email, password,confirmPassword,date,number,lastName } = req.body;
+    if(password !== confirmPassword ){
+      return res.status(400).json({msg:"password does not match...."})
+    }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ msg: "Email already exists" });
@@ -12,7 +15,7 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ firstName,lastName ,email, password: hashedPassword,confirmPassword:hashedPassword,date,number });
     res.status(201).json({ msg: "User created successfully", user });
   } catch (error) {
     console.log(error);
