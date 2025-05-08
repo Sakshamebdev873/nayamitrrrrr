@@ -166,6 +166,16 @@ export function Navbar() {
               Cyber
             </NavLink>
             <NavLink
+              to="/analyst"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "font-bold" : "font-light"
+                } transition-all duration-200 ease-in-out transform hover:text-blue-700`
+              }
+            >
+              Analysis
+            </NavLink>
+            <NavLink
               to="/legalAssistance"
               className={({ isActive }) =>
                 `${
