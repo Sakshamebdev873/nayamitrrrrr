@@ -329,6 +329,9 @@ export const StateInfoSection = () => {
 
   return (
     <div className="space-y-10">
+      <div className='flex flex-col justify-center items-start my-10 text-blue-900/90 mx-13 space-y-5 animate-pulse'>
+        <h1 className='text-3xl mb-2 font-serif font-bold '>This Is A List Of Laws Specific To States:</h1>
+      </div>
       {stateData.map((state, index) => (
         <motion.div layout key={index}>
           <Card
