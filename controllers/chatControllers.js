@@ -399,16 +399,18 @@ export const analyzePdf = async (req, res) => {
     const data = await pdfParse(fileBuffer);
     const extractedText = data.text;
 
-    const result = ai.models.generateContent({
+    // ✅ Await the model call
+    const result = await ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: `Summarize this legal document:\n\n${extractedText}`,
     });
 
-    const summary = await result.text;
+    // ✅ Then await result.text()
+    const summary = await result.text.trim();
 
     res.status(200).json({
       summary,
-      originalText: extractedText, // send first 1000 chars only
+      originalText: extractedText.slice(0, 1000), // send only first 1000 chars if needed
     });
   } catch (err) {
     console.error("PDF Analysis Error:", err);
