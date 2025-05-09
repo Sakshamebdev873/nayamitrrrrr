@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import pdfParse from "pdf-parse";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import mongoose from "mongoose";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API });
 const ai1 = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Multilingual Legal System Prompts
@@ -49,9 +50,13 @@ export const createChat = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { prompt } = req.body;
 
-  const user = await User.findById(String(id));
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ msg: "Invalid user ID" });
+  }
+  
+  const user = await User.findById(id);
   if (!user) {
-    return res.status(400).json({ msg: "User not found" });
+    return res.status(404).json({ msg: "User not found" });
   }
 
   let sessionId = req.signedCookies.sessionId;
@@ -116,7 +121,7 @@ export const createChat = asyncHandler(async (req, res) => {
     .join("\n");
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-pro-exp-03-25",
     contents: [
       {
         role: "user",
@@ -203,6 +208,12 @@ export const getHistory = asyncHandler(async (req, res) => {
   const otherSessions = allSessions.filter(
     (session) => session.sessionId.trim() !== sessionId
   );
+ // Prevent 304 by disabling caching
+ res.set({
+  'Cache-Control': 'no-store',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+});
 
   res.status(200).json({
     currentSession: currentSession || null,
