@@ -1,5 +1,5 @@
-import React from 'react'
-import { Form, redirect } from "react-router";
+import React, { useEffect } from 'react'
+import { Form, redirect, useNavigate } from "react-router";
 import customFetch from '../utils/customFetch';
 export const action = async({request}) =>{
   const formdata = await request.formData()
@@ -13,6 +13,25 @@ export const action = async({request}) =>{
   }
 }
 const LogIn = () => {
+  const navigate = useNavigate()
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await customFetch.get('/check'); 
+        console.log(res);
+        
+        // backend checks JWT from cookie
+        if (res?.data?.isLoggedIn) {
+          navigate(`/chat/${res.data.user.id}`); // redirect if already logged in
+        }
+      } catch (err) {
+         return navigate('/login')
+        // console.log("No valid session:", err.message);
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
   return (
     <>
     <div className='flex items-center mt-12  justify-center '>

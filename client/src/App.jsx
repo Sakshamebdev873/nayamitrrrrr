@@ -18,6 +18,7 @@ import Chat from "./pages/Chat.jsx";
 import { action as signAction } from "./pages/SignUp.jsx";
 import { action as loginAction } from "./pages/LogIn.jsx";
 import { action as chatAction,loader as chatLoader } from "./pages/Chat.jsx";
+import PdfReader from "./components/PdfReader.jsx";
 // import { Auth0Provider } from '@auth0/auth0-react'
 // import { Contact } from './components/Contact.jsx'
 function App() {
@@ -42,6 +43,10 @@ function App() {
         {
           path: "contact",
           element: <Contact />,
+        },
+        {
+          path: "analyst",
+          element: <PdfReader />,
         },
         {
           path: "legalAssistance",

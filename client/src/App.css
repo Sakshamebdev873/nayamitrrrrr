@@ -20,3 +20,18 @@
 @keyframes l27 {
   100% {transform: rotate(1turn)}
 }
+
+@keyframes scrollX {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.scroll-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scrollX 15s linear infinite;
+}
