@@ -10,7 +10,7 @@ import { StateInfoSection } from "./components/About.jsx";
 import { Contact } from "./components/Contact.jsx";
 import { CyberSection } from "./components/CyberSection.jsx";
 import { ErrorHandler } from "./components/ErrorHandler.jsx";
-import { LegalAssistant } from "./components/LegalAssistant.jsx";
+import LegalAssistant  from "./components/LegalAssistant.jsx";
 import { Dashboard } from "./components/Dashboard.jsx";
 import LogIn from "./pages/LogIn.jsx";
 import SignUp from "./pages/SignUp.jsx";

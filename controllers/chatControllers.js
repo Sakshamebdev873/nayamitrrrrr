@@ -53,7 +53,7 @@ export const createChat = asyncHandler(async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ msg: "Invalid user ID" });
   }
-  
+
   const user = await User.findById(id);
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
@@ -108,7 +108,7 @@ export const createChat = asyncHandler(async (req, res) => {
   ❌ Do not skip directly to solutions.  
   👂 Always listen and ask for context first.
   `.trim();
-  
+
   const historyText = history
     .map(
       (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
@@ -203,12 +203,12 @@ export const getHistory = asyncHandler(async (req, res) => {
   const otherSessions = allSessions.filter(
     (session) => session.sessionId.trim() !== sessionId
   );
- // Prevent 304 by disabling caching
- res.set({
-  'Cache-Control': 'no-store',
-  'Pragma': 'no-cache',
-  'Expires': '0',
-});
+  // Prevent 304 by disabling caching
+  res.set({
+    "Cache-Control": "no-store",
+    Pragma: "no-cache",
+    Expires: "0",
+  });
 
   res.status(200).json({
     currentSession: currentSession || null,
@@ -418,143 +418,153 @@ export const analyzePdf = async (req, res) => {
   }
 };
 
-// // Initialize the OAuth2 client.
-// const oAuth2Client = new OAuth2Client({
-//   clientId: process.env.GOOGLE_CLIENT_ID,
-//   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//   redirectUri: process.env.GOOGLE_REDIRECT_URI,
-// });
+// Helper functions to prepare the prompt for FIR or RTI
 
-// // Initialize the Google Docs API client
-// const docs = google.docs({ version: 'v1' });
+const rtiPrompt = (description, language) => {
+  if (language === "Hindi") {
+    return `नीचे दी गई जानकारी के आधार पर एक आरटीआई (सूचना का अधिकार) आवेदन पत्र तैयार करें। इसे एक औपचारिक पत्र के रूप में तैयार करें, जैसा कि किसी सरकारी कार्यालय में भेजा जाता है:\n\n${description}\n\nकेवल आरटीआई आवेदन पत्र दें।`;
+  }
+  return `Based on the information provided below, draft a formal Right to Information (RTI) request letter to be submitted to a public authority. Provide only the RTI letter:\n\n${description}\n\nOnly provide the RTI letter.`;
+};
 
-// // Helper function to authenticate with Google API using OAuth2
-// const getAuthClient = async (req, res) => { // Added res here
-//   const tokens = req.signedCookies.sessionId;
-//   if (!tokens) {
-//     throw new Error('Authentication required. No tokens found in session.');
-//   }
+const firPrompt = (
+  description,
+  language,
+  policeStation,
+  name,
+  address,
+  contact,
+  occupation,
+  accusedName,
+  accusedAddress,
+  relationshipToComplainant,
+  incidentDate,
+  incidentTime,
+  incidentPlace,
+  natureOfOffense,
+  witnesses,
+  evidence,
+  actionRequest
+) => {
+  const text = `
+You are a legal assistant. Based on the given incident description, draft a formal FIR complaint letter in proper format.
+You must automatically include all applicable Indian laws and IPC sections relevant to the incident.
+Do NOT add any explanations, optional content, metadata, headings, or extra comments.
+Return ONLY the finalized FIR letter — strictly in plain letter format.
+Ensure all placeholders are correctly filled based on the input context.
+Language for the letter: ${language}
 
-//   // **CRITICAL:** Check the contents of the sessionId cookie.
-//   console.log('Session ID Cookie Contents:', tokens);
+---
+Applicant Details:
+- Name: ${name}
+- Address: ${address}
+- Contact: ${contact}
+- Occupation: ${occupation}
 
-//   if (!tokens.access_token) {
-//     throw new Error(
-//       'Authentication required.  Access token is missing from session.'
-//     );
-//   }
+Accused Details:
+- Name: ${accusedName}
+- Address: ${accusedAddress}
+- Relationship to Complainant: ${relationshipToComplainant}
 
-//   try {
-//     oAuth2Client.setCredentials(tokens);
+Incident Details:
+- Date: ${incidentDate}
+- Time: ${incidentTime}
+- Place: ${incidentPlace}
+- Nature of Offense: ${natureOfOffense}
+- Description: ${description}
 
-//     if (oAuth2Client.isExpired()) {
-//       console.log('Token is expired, trying to refresh');
-//       const refreshedTokens = await oAuth2Client.refreshAccessToken();
-//       if (refreshedTokens.credentials) {
-//         oAuth2Client.setCredentials(refreshedTokens.credentials);
-//         // **CRITICAL:** You MUST update the cookie with the refreshed tokens.
-//         res.cookie('sessionId', refreshedTokens.credentials, { // Use the res object
-//           signed: true,
-//           httpOnly: true,
-//           maxAge: 1000 * 60 * 60 * 24 * 7,
-//         });
-//         console.log('Token refreshed and cookie updated');
-//       } else {
-//         throw new Error('Failed to refresh access token');
-//       }
-//     }
-//     return oAuth2Client;
-//   } catch (error) {
-//     console.error('Error getting/refreshing auth client', error);
-//     throw new Error('Failed to authenticate: ' + error.message);
-//   }
-// };
+Additional Info:
+- Witnesses: ${witnesses}
+- Evidence: ${evidence}
+- Requested Action: ${actionRequest}
 
-// // Helper function to create a Google Doc with the content
-// const createGoogleDoc = async (auth, content) => {
-//   const docsClient = google.docs({ version: 'v1', auth });
+Police Station: ${policeStation}
+---
+`;
 
-//   try {
-//     const document = await docsClient.documents.create({
-//       requestBody: {
-//         title: 'Generated Document',
-//       },
-//     });
+  return [
+    {
+      role: "user",
+      parts: [{ text }],
+    },
+  ];
+};
 
-//     const documentId = document.data.documentId;
+// Helper function for FIR prompt
 
-//     await docsClient.documents.batchUpdate({
-//       documentId,
-//       requestBody: {
-//         requests: [
-//           {
-//             insertText: {
-//               location: { index: 1 },
-//               text: content,
-//             },
-//           },
-//         ],
-//       },
-//     });
+export const generateDocument = asyncHandler(async (req, res) => {
+  const {
+    type,
+    description,
+    language,
+    policeStation,
+    name,
+    address,
+    contact,
+    occupation,
+    accusedName,
+    accusedAddress,
+    relationshipToComplainant,
+    incidentDate,
+    incidentTime,
+    incidentPlace,
+    natureOfOffense,
+    witnesses,
+    evidence,
+    actionRequest,
+  } = req.body;
 
-//     return document.data;
-//   } catch (error) {
-//     console.error('Error creating/updating Google Doc:', error);
-//     throw new Error('Failed to create/update document: ' + error.message);
-//   }
-// };
+  let prompt;
+  if (type === "FIR") {
+    // Generate FIR prompt
+    prompt = firPrompt(
+    
+      description,
+      language,
+      policeStation,
+      name,
+      address,
+      contact,
+      occupation,
+      accusedName,
+      accusedAddress,
+      relationshipToComplainant,
+      incidentDate,
+      incidentTime,
+      incidentPlace,
+      natureOfOffense,
+      witnesses,
+      evidence,
+      actionRequest
+    );
+  } else if (type === "RTI") {
+    // RTI prompt can be created similarly if needed
+    prompt = rtiPrompt(description, language);
+  } else {
+    return res.status(400).json({ error: "Invalid type. Use 'FIR' or 'RTI'." });
+  }
 
-// const firPrompt = (description, language) => {
-//   if (language === 'Hindi') {
-//     return `आपके द्वारा दी गई सूचना के आधार पर यह एफआईआर ड्राफ्ट तैयार किया गया है। कृपया सुनिश्चित करें कि सभी विवरण सही हैं:\n${description}`;
-//   }
-//   return `Based on the information you provided, this FIR draft is generated. Please ensure all details are correct:\n${description}`;
-// };
+  try {
+    // Generate draft using Gemini AI
+    const result = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+    });
 
-// const rtiPrompt = (description, language) => {
-//   if (language === 'Hindi') {
-//     return `आपके द्वारा दी गई सूचना के आधार पर यह आरटीआई ड्राफ्ट तैयार किया गया है। कृपया सुनिश्चित करें कि सभी विवरण सही हैं:\n${description}`;
-//   }
-//   return `Based on the information you provided, this RTI draft is generated. Please ensure all details are correct:\n${description}`;
-// };
+    // Extract the generated FIR text
+    const response = result.text.trim();
 
-// export const generateDocument = asyncHandler(async (req, res) => {
-//   const { type, description, language = 'English' } = req.body;
+    // Send response with generated FIR
+    res.status(200).json({
+      message: `${type} draft generated successfully.`,
+      draft: response,
+    });
+  } catch (err) {
+    console.error("Drafting error:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to generate document: " + err.message });
+  }
+});
 
-//   let prompt;
-//   if (type === 'FIR') {
-//     prompt = firPrompt(description, language);
-//   } else if (type === 'RTI') {
-//     prompt = rtiPrompt(description, language);
-//   } else {
-//     return res.status(400).json({ error: "Invalid type. Use 'FIR' or 'RTI'." });
-//   }
-
-//   try {
-//     // Generate the content using Gemini AI
-//     const result = await ai.models.generateContent({
-//       model: 'gemini-2.0-flash',
-//       contents: prompt,
-//     });
-//     console.log('Gemini Response:', result);
-
-//     const response = result.response;
-//     const output = response?.parts?.map((part) => part.text).join('').trim();
-
-//     // Create the Google Doc and upload the content
-//     const auth = await getAuthClient(req, res); // Pass res to getAuthClient
-//     const createdDoc = await createGoogleDoc(auth, output);
-
-//     // Get the document's URL
-//     const docUrl = `https://docs.google.com/document/d/${createdDoc.documentId}/edit`;
-
-//     res.status(200).json({
-//       message: `${type} Draft created successfully.`,
-//       docUrl,
-//       draft: output,
-//     });
-//   } catch (err) {
-//     console.error('Drafting error:', err);
-//     res.status(500).json({ error: 'Failed to generate document: ' + err.message });
-//   }
-// });
+// Helper function for FIR prompt
