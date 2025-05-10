@@ -362,50 +362,41 @@ const navigate = useNavigate()
   return (
     <div className="flex">
       {/* Sidebar */}
-      <div className="w-[350px] h-screen bg-[#3c32b5]">
-        <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
-          <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
-          <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
-        </div>
-        <div className="flex flex-col">
-          {Sidebardata.map((item, index) => {
-            const { img, text, path } = item;
-            return (
-              <>
-                {index === 5 ? (
-                  <div key={index} className="flex flex-col gap-2">
-                    <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4 ">
-                      Resources
-                    </h1>
-                    <NavLink
-                      to={path}
-                      key={index}
-                      className="flex gap-4 py-3.5 px-6"
-                    >
-                      <img src={img} alt="#" className="w-[18px] h-[16px]" />
-                      <p className="font-normal text-[14px] leading-[14px] text-white ">
-                        {text}
-                      </p>
-                    </NavLink>
-                  </div>
-                ) : (
-                  <NavLink
-                    to={path}
-                    key={index}
-                    className="flex gap-4 py-3.5 px-6"
-                  >
-                    <img src={img} alt="#" className="w-[18px] h-[16px]" />
-                    <p className="font-normal text-[14px] leading-[14px] text-white ">
-                      {text}
-                    </p>
-                  </NavLink>
-                )}
-              </>
-            );
-          })}
-        </div>
+     <div className="w-[350px] h-screen bg-[#3c32b5]">
+      <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
+        <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
+        <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
       </div>
+      <div className="flex flex-col">
+        {Sidebardata.map((item, index) => {
+          const { img, text, path } = item;
+          const isResourceHeader = index === 5;
 
+          return (
+            <div key={index}>
+              {isResourceHeader && (
+                <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
+                  Resources
+                </h1>
+              )}
+              <NavLink
+                to={path}
+                className={({ isActive }) =>
+                  `flex gap-4 py-3.5 px-6 ${
+                    isActive ? "text-yellow-400 bg-white/10 rounded-lg" : "text-white"
+                  }`
+                }
+              >
+                <img src={img} alt={text} className="w-[18px] h-[16px]" />
+                <p className="font-normal text-[14px] leading-[14px]">
+                  {text}
+                </p>
+              </NavLink>
+            </div>
+          );
+        })}
+      </div>
+    </div>
       {/* Main Chat Area */}
       <div className="flex flex-col justify-between w-full h-screen">
         {/* Header */}

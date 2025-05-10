@@ -1,6 +1,7 @@
 import React,{useEffect, useState} from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import customFetch from "../utils/customFetch";
 
 // import { GoLaw } from "react-icons/go";
 
@@ -49,147 +50,138 @@ const Profile = ({click,useClick,user}) => {
   );
 };
 
+
+
+
 export function Navbar() {
-  // const { user , loginWithRedirect ,isAuthenticated , logout , isLoading } = useAuth0();
-  // console.log('current user', user);
   const location = useLocation();
   const pathname = location.pathname;
-  console.log(pathname);
-  const user = 'isko change kario';
+  const user = "isko change kario"; // Placeholder for real auth user
 
-  // let name = '';
-  // if(isLoading) return<div className='text-light font-lg '>Loading...</div>
-
-  // if(isAuthenticated){
-  //   name = user.name
-  //   if(name.length>10){
-  //     name = name.slice(0, 10).toUpperCase() + '...';
-  //   }
-  // }
-  const [click,useClick] = useState(false); 
-  const [date,setDate] = useState(new Date().toLocaleTimeString())
+  const [date, setDate] = useState(new Date().toLocaleTimeString());
   const day = new Date().getDay();
-  const days = ['Sun','Mon','Tue','Wed','Thr','Fri','Sat']
-  console.log( Date());
-  
-  useEffect(()=>{
-    const interval = setInterval(()=>(
-      setDate(new Date().toLocaleTimeString())
-    ),1000)
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+ const navigate = useNavigate()
+
+ const handleback = async () =>{
+      try {
+        const res = await customFetch.get('/check'); 
+        console.log(res);
+        
+        // backend checks JWT from cookie
+        if (res?.data?.isLoggedIn) {
+          navigate(`/chat/${res.data.user.id}`); // redirect if already logged in
+        }
+      } catch (err) {
+         return navigate('/')
+        // console.log("No valid session:", err.message);
+      }
+   
+
+  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDate(new Date().toLocaleTimeString());
+    }, 1000);
 
     return () => clearInterval(interval);
-  },[date])
-
+  }, []);
 
   return (
     <>
-    <div className="flex justify-between items-center w-full h-5 bg-black/80 font-light text-sm  ">
-      <div className="flex gap-1">
-        <div className="px-5 text-white">{date}</div>
-        <div className="px-5 text-white ">{days[day]}</div>
+      {/* Top Time Bar */}
+      <div className="flex justify-between items-center w-full h-5 bg-black/80 font-light text-sm">
+        <div className="flex gap-1">
+          <div className="px-5 text-white">{date}</div>
+          <div className="px-5 text-white">{days[day]}</div>
+        </div>
       </div>
-      <div className="flex space-2">
-      
-      </div>
-    </div>
-      
-      {pathname === '/chat' ? <></> : pathname === "/login" || pathname === "/signup" ? (
-        <>
-          <div className="flex mt-7  justify-between ml-5 ">
-            <div className="flex items-center gap-7 ml-5">
-              <img src="/Frame.png" alt="#" className="w-[37.5px] h-[30px]" />
-              <h1 className="text-xl font-serif font-light">
-                <Link
-                  to="/"
-                  className="family font-bold text-[24px] leading-[24px]"
-                >
-                  Naya Mitra
-                </Link>
-              </h1>
-            </div>
-            {pathname === "/login" ? (
-              <>
-                {" "}
-                <div className="flex justify-center mr-4 items-center gap-2">
-                  <h1 className="text-[14px] leading-[14px] font-normal text-[#4B5563] family  ">
-                    Don't have a account?
-                  </h1>
-                  <Link
-                    to={"/signup"}
-                    className="text-[#4F46E5] text-[16px] leading-[16px] font-medium  "
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-center mr-4 items-center gap-2">
-                  <h1 className="text-[14px] leading-[14px] font-normal text-[#4B5563] family  ">
-                    Already have a account?
-                  </h1>
-                  <Link
-                    to={"/login"}
-                    className="text-[#4F46E5] text-[16px] leading-[16px] font-medium  "
-                  >
-                    Login
-                  </Link>
-                </div>
-              </>
-            )}
+
+      {/* Login/Signup Special Header */}
+      {pathname === "/login" || pathname === "/signup" ? (
+        <div className="flex mt-7 justify-between ml-5">
+          <div className="flex items-center gap-7 ml-5">
+            <img src="/Frame.png" alt="#" className="w-[37.5px] h-[30px]" />
+            <h1 className="text-xl font-serif font-light">
+              <Link
+                to="/"
+                className="family font-bold text-[24px] leading-[24px]"
+              >
+                Naya Mitra
+              </Link>
+            </h1>
           </div>
-        </>
-      ) : (
-        <div className="flex justify-between bg-gray-200 items-center p-4 pt-4 rounded-b-lg">
-          <div className="flex justify-between ml-5 ">
-            <div className="flex items-center gap-7 ml-5">
-              <img src="/Frame.png" alt="#" className="w-[37.5px] h-[30px]" />
-              <h1 className="text-xl font-serif font-light">
-                <Link
-                  to="/"
-                  className="family font-bold text-[24px] leading-[24px]"
-                >
-                  Naya Mitra
-                </Link>
-              </h1>
-            </div>
-          </div>
-
-
-          <div className="flex items-center gap-5 mr-5">
-            <div className="flex flex-col"></div>
-            {user &&  <img
-              src="https://plus.unsplash.com/premium_vector-1719858611039-66c134efa74d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8fDA%3D"
-              alt={`Profile of ${user?.name}`}
-              className="w-7 h-7 rounded-full hover:scale-110 transition-transform duration-200 cursor-pointer"
-            />}
-            {click && <Profile click={click} useClick={useClick} user={user} />}
-
-            {/* {isAuthenticated && 
-      <h2 className='font-extralight text-md '>
-      
-        Welcome {user.name}
-      </h2>}
-      
-      {isAuthenticated ? <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })} className='p-2 bg-blue-400 px-3 rounded-xl font-light hover:bg-blue-500 hover:scale-105 transition text-white'>
-        Log out
-        </button> : <button onClick={(e)=>loginWithRedirect()} className='p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white'>Log In
-        </button> } */}
+          <div className="flex justify-center mr-4 items-center gap-2">
+            <h1 className="text-[14px] leading-[14px] font-normal text-[#4B5563] family">
+              {pathname === "/login"
+                ? "Don't have an account?"
+                : "Already have an account?"}
+            </h1>
             <Link
-              to={"signup"}
-              className="p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white"
+              to={pathname === "/login" ? "/signup" : "/login"}
+              className="text-[#4F46E5] text-[16px] leading-[16px] font-medium"
             >
-              Sign Up
-            </Link>
-            <Link
-              to={"/login"}
-              className="p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white"
-            >
-              Log In
+              {pathname === "/login" ? "Sign Up" : "Login"}
             </Link>
           </div>
         </div>
-      ) }
+      ) : (
+        // Main Header for other pages
+        <div className="flex justify-between bg-gray-200 items-center p-4 pt-4 rounded-b-lg">
+          <div className="flex justify-between items-center w-full px-5 py-4">
+  {/* Left Side: Logo */}
+  <div className="flex items-center gap-4">
+    <img src="/Frame.png" alt="#" className="w-[37.5px] h-[30px]" />
+    <h1 className="text-xl font-serif font-light">
+      <Link
+        to="/"
+        className="family font-bold text-[24px] leading-[24px]"
+      >
+        Naya Mitra
+      </Link>
+    </h1>
+  </div>
+
+  {/* Right Side: Button */}
+  <div>
+    <button
+      onClick={handleback}
+      type="button"
+      className="px-4 py-2 bg-red-400 shadow-2xl cursor-pointer text-white rounded-[8px] border-none"
+    >
+      Go Back
+    </button>
+  </div>
+</div>
+
+
+          {/* Login/Signup buttons only on home route */}
+          {pathname === "/" && (
+            <div className="flex items-center gap-5 mr-5">
+              {user && (
+                <img
+                  src="https://plus.unsplash.com/premium_vector-1719858611039-66c134efa74d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8fDA%3D"
+                  alt={`Profile of ${user}`}
+                  className="w-7 h-7 rounded-full hover:scale-110 transition-transform duration-200 cursor-pointer"
+                />
+              )}
+              <Link
+                to="/signup"
+                className="p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white"
+              >
+                Log In
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
+
