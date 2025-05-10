@@ -163,7 +163,7 @@ export function Navbar() {
           <button
             onClick={handleback}
             type="button"
-            className="px-4 py-2 bg-red-400 shadow-2xl cursor-pointer text-white rounded-[8px] border-none"
+            className="px-4 py-2 bg-red-400 shadow-2xl cursor-pointer text-white rounded-[8px] border-none hover:scale-102 hover:bg-red-600 transition-all transform-color duration-300"
           >
             Go Back
           </button>

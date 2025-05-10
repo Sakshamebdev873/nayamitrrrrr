@@ -9,7 +9,7 @@ const Card = React.forwardRef(({ className = "", children, ...props }, ref) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4 }}
-    className={`rounded-3xl border border-gray-200 max-w-[90%] mx-10 bg-gradient-to-br from-white to-gray-50 text-zinc-900 shadow-xl hover:shadow-2xl transition-all duration-300 ease-in ${className}`}
+    className={`rounded-3xl border border-gray-200 min-w-[100%] mx-10 bg-gradient-to-br from-white to-gray-50 text-zinc-900 shadow-xl hover:shadow-2xl transition-all duration-300 ease-in ${className}`}
     {...props}
   >
     {children}
@@ -36,7 +36,7 @@ Card1.displayName = "Card1";
 const CardHeader = React.forwardRef(({ className = "", children, ...props }, ref) => (
   <div
     ref={ref}
-    className={`flex flex-col gap-2 p-6 border-b border-gray-200 bg-gray-50 ${className}`}
+    className={`flex flex-col gap-2 p-6 border-b min-w-[100%] border-gray-200 bg-gray-50 ${className}`}
     {...props}
   >
     {children}
@@ -48,7 +48,7 @@ CardHeader.displayName = "CardHeader";
 const CardTitle = React.forwardRef(({ className = "", children, ...props }, ref) => (
   <h3
     ref={ref}
-    className={`text-2xl font-extrabold leading-tight text-indigo-700 tracking-wide ${className}`}
+    className={`text-2xl font-extrabold leading-tight text-blue-600 tracking-wide ${className}`}
     {...props}
   >
     {children}

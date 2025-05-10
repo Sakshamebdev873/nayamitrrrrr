@@ -1,6 +1,5 @@
 import { ShieldAlert, AlertTriangle, WifiOff, Lock, Globe, FileWarning, Eye, Phone,Link as LinkIcon } from "lucide-react";
 import React from 'react';
-import { useState } from 'react';
 
 import { Awareness } from './cyberPageComponent/Awareness';
 import { CyberLawCard } from './cyberPageComponent/Legal';
@@ -104,12 +103,12 @@ function AdditionalInsightsPanel() {
   ];
 
   return (
-    <div className="p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[90vw] min-h-[80vh] mt-4 transition-all duration-500 text-white">
+    <div className="p-6 rounded-2xl shadow-lg border border-gray-200 min-w-[90vw] min-h-[80vh] mt-4 transition-all duration-500 text-white hover:inset-shadow-2xl hover:scale-102 ">
       <ul className="flex flex-col gap-5 text-lg font-light">
         {insights.map((item, idx) => (
           <li
             key={idx}
-            className="flex items-start gap-4 text-black  p-4 rounded-xl transition"
+            className="flex items-start gap-4 text-black p-4 rounded-xl transition"
           >
             <div className="mt-1">{item.icon}</div>
             <p className="leading-relaxed">{item.text}</p>
@@ -176,7 +175,7 @@ export function CyberSection(){
             </h1>
             <CyberLawCard/>
           </div>
-            <h3 className="text-[42px] font-bold text-blue-700 px-12 pt-4 mt-5  mb-4">Additional Insights</h3>
+            <h3 className="text-4xl font-bold text-blue-600 px-12 pt-4 mt-5  mb-4">Additional Insights</h3>
           <div className='flex flex-col justify-center items-center'>
             <AdditionalInsightsPanel/>
           </div>
@@ -184,7 +183,7 @@ export function CyberSection(){
 
         {/* 5. Cybercrime Statistics */}
         <CyberAnalyticsPage/>
-<div className=' my-10 '>
+        <div className=' my-10 '>
         <Awareness/>
         </div>
 

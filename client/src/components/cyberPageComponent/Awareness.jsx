@@ -2,8 +2,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { Button as UIButton } from "@/components/ui/button";
-import { Badge as UIBadge } from "@/components/ui/badge";
 
 // Utility function
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -246,7 +244,7 @@ export function Awareness() {
               ))}
             </div>
 
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-5 flex items-center justify-center gap-3">
               <motion.button
                 className={`px-5 py-2 rounded-md font-bold font-mono transition duration-300 bg-blue-400 text-white hover:bg-blue-500 ${
                   !selectedOption ? "opacity-50 cursor-not-allowed" : ""

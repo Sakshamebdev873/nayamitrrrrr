@@ -45,17 +45,19 @@ export default function Survey() {
   return (
     <div className="min-h-screen p-6">
 
-      <div className='flex justify-around items-center gap-x-5'>
+      <div className='flex justify-around items-center gap-x-5 mb-30'>
       <div className='flex flex-col justify-end gap-y-3 ml-10'>
         <h2 className="text-4xl font-bold mb-8 text-gray-800 drop-shadow-sm">Understand your legal right</h2>
         <p className='text-sm font-light max-w-[40%]'>
           Our AI-powered survey helps you identify potential legal issues and provides personalized guidance on protecting your rights.
         </p>
         <button
-          className='bg-blue-500 rounded-lg hover:scale-105 transition-all duration-300 text-white px-5 py-2 max-w-25'
+          className='bg-blue-500 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 hover:scale-105 transition-all duration-300 text-white px-5 py-2 max-w-25'
           onClick={btnClick}
         >
+          <span className='transition-all ease-in duration-75'>
           Start!
+          </span>
         </button>
       </div>
       <img src="https://plus.unsplash.com/premium_vector-1683141046588-e7d469b8d507?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="helper image" className='max-w-[40%] mt-10 h-[40%] rounded-2xl' />

@@ -89,8 +89,8 @@ function CategoryDistributionChart() {
 export function CyberAnalyticsPage() {
   return (
     // bg-gradient-to-br from-blue-100 via-voilet-100/30 to-blue-200
-    <div className="flex gap-8 justify-center items-center  min-w-[90vw] p-6 bg-gray-50 min-h-screen">
-      <Card className="col-span-2 p-6 rounded-xl shadow-2xl  transition-shadow duration-500">
+    <div className="flex gap-8 justify-center items-center  m-10 min-w-[90vw] p-6 bg-gray-50 min-h-screen">
+      <Card className="col-span-2 p-6 rounded-xl shadow-2xl transition-shadow duration-500">
         <CardHeader>
           <CardTitle className="text-3xl font-extrabold text-gradient ">
             <BarChart4 className="w-8 h-8 text-transparent bg-clip-text " />
