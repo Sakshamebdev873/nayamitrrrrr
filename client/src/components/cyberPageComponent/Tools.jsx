@@ -11,8 +11,6 @@ import {
   Wrench,
   PlayCircle,
   Info,
-  ShieldCheck,
-  AlertTriangle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -66,15 +64,15 @@ export function ToolsAndResources() {
           whileHover={{ scale: 1.03 }}
           className="transition-shadow hover:shadow-xl rounded-xl"
         >
-          <Card className="border border-indigo-200">
+          <Card className="border border-indigo-200 ">
             <CardHeader
               onClick={() =>
                 setActiveIndex(index === activeIndex ? null : index)
               }
               className="cursor-pointer"
             >
-              <CardTitle className="text-xl font-semibold text-indigo-700 flex items-center gap-2">
-                <Wrench className="w-5 h-5" />
+              <CardTitle className="text-lg whitespace-nowrap font-semibold text-indigo-700 flex items-center gap-2">
+                <Wrench className="w-5 h-5"/>
                 {tool.name}
               </CardTitle>
               <CardDescription className="text-gray-600">

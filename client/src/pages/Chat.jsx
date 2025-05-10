@@ -325,7 +325,7 @@ const navigate = useNavigate()
     {
       img: "/heart.png",
       text: "Safety hub",
-      path: "/",
+      path: "/safetyhub",
     },
     {
       img: "/laws.png",
@@ -336,6 +336,11 @@ const navigate = useNavigate()
       img: "/heart.png",
       text: "Cyber Information",
       path: "/cybersection",
+    },
+    {
+      img: "/heart.png",
+      text: "Survey",
+      path: "/survey",
     },
     {
       img: "/heart.png",

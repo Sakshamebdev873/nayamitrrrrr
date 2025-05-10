@@ -20,6 +20,8 @@ import { action as signAction } from "./pages/SignUp.jsx";
 import { action as loginAction } from "./pages/LogIn.jsx";
 import { action as chatAction,loader as chatLoader } from "./pages/Chat.jsx";
 import PdfReader from "./components/PdfReader.jsx";
+import SafetyHub from "./components/SafetyHub.jsx";
+import Survey from "./components/Survey.jsx";
 // import { Auth0Provider } from '@auth0/auth0-react'
 // import { Contact } from './components/Contact.jsx'
 function App() {
@@ -57,6 +59,14 @@ function App() {
         {
           path: "dashboard",
           element: <Dashboard />,
+        },
+        {
+          path: "survey",
+          element: <Survey />,
+        },
+        {
+          path: "safetyhub",
+          element: <SafetyHub />,
         },
         {
           path: "login",
