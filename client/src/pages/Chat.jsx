@@ -9,7 +9,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import customFetch from "../utils/customFetch";
-
+import { toast } from "sonner";
 export const action = async ({ request, params }) => {
   const { id } = params;
   const formdata = await request.formData();
@@ -194,7 +194,7 @@ const Chat = () => {
   // Voice recognition logic
   const [inputText, setInputText] = useState("");
   const recognitionRef = useRef(null);
-const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleVoiceInput = () => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
@@ -302,11 +302,7 @@ const navigate = useNavigate()
   };
 
   const Sidebardata = [
-    {
-      img: "/home.png",
-      text: "Home",
-      path: "/",
-    },
+   
     {
       img: "/assist.png",
       text: "Legal Assistant",
@@ -352,7 +348,7 @@ const navigate = useNavigate()
   const handleLogout = async () => {
     try {
       await customFetch.get("/logout");
-
+      toast.success("Successfully logged Out....");
       return navigate("/");
     } catch (error) {
       console.log(error);
@@ -360,135 +356,152 @@ const navigate = useNavigate()
   };
 
   return (
-    <div className="flex">
-      {/* Sidebar */}
-     <div className="w-[350px] h-screen bg-[#3c32b5]">
-      <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
-        <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
-        <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
-      </div>
-      <div className="flex flex-col">
-        {Sidebardata.map((item, index) => {
-          const { img, text, path } = item;
-          const isResourceHeader = index === 5;
-
-          return (
-            <div key={index}>
-              {isResourceHeader && (
-                <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
-                  Resources
-                </h1>
-              )}
-              <NavLink
-                to={path}
-                className={({ isActive }) =>
-                  `flex gap-4 py-3.5 px-6 ${
-                    isActive ? "text-yellow-400 bg-white/10 rounded-lg" : "text-white"
-                  }`
-                }
-              >
-                <img src={img} alt={text} className="w-[18px] h-[16px]" />
-                <p className="font-normal text-[14px] leading-[14px]">
-                  {text}
-                </p>
-              </NavLink>
-            </div>
-          );
-        })}
-      </div>
+  <div className="flex h-screen overflow-hidden">
+  {/* Sidebar */}
+  <div className="w-[20vw] h-full bg-[#3c32b5] flex-shrink-0 flex flex-col">
+    <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
+      <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
+      <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
     </div>
-      {/* Main Chat Area */}
-      <div className="flex flex-col justify-between w-full h-screen">
-        {/* Header */}
-        <div className="flex justify-between items-center h-[77px] w-[82.2vw] bg-[#4338CA] gap-2">
-          <div className="  border-none border-gray-200 flex items-center px-4">
-            <div className="w-[55px] h-[45px] rounded-2xl  flex justify-center items-center bg-white">
-              <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px]" />
-            </div>
-            <h1 className="text-white bg-[#4338CA] text-[20px] font-normal ml-4">
-              Legal Assistant
-            </h1>
-          </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-400 shadow-2xl mr-4 text-white rounded-[8px] border-none border-white "
-          >
-            Logout
-          </button>
-        </div>
+    <div className="flex flex-col flex-1 overflow-y-auto">
+      {Sidebardata.map((item, index) => {
+        const { img, text, path } = item;
+        const isResourceHeader = index === 4;
 
-        {/* Chat messages */}
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-100 space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`max-w-[75%] p-4 rounded-lg shadow whitespace-pre-wrap ${
-                msg.role === "user"
-                  ? "bg-white self-end ml-auto border border-gray-300"
-                  : "bg-[#E0E7FF] self-start mr-auto"
-              }`}
-            >
-              {msg.role === "user" ? (
-                <p className="text-sm">{msg.prompt}</p>
-              ) : (
-                <div>{renderMarkdown(msg.response)}</div>
-              )}
-            </div>
-          ))}
-
-          {navigation.state === "submitting" && (
-            <div className="flex justify-center items-center mt-20">
-              <div className="w-10 h-10 border-4 bg-black border-white border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Message input with voice */}
-        <div className="p-4 bg-white border-gray-200 border-t">
-          <form
-            ref={formRef}
-            method="post"
-            className="flex gap-4 max-w-4xl mx-auto"
-            onSubmit={handleSubmit}
-          >
-            {/* Voice button on the left */}
-            <button
-              type="button"
-              onClick={startVoiceRecognition}
-              className={`px-3 rounded-md border ${
-                recognizing ? "bg-yellow-100" : "bg-gray-100"
-              } border-gray-300`}
-              title="Click to speak"
-            >
-              🎤
-            </button>
-
-            <input
-              type="text"
-              name="prompt"
-              ref={inputRef}
-              placeholder={
-                navigation.state === "submitting"
-                  ? "Please wait..."
-                  : "Ask anything..."
+        return (
+          <div key={index}>
+            {isResourceHeader && (
+              <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
+                Resources
+              </h1>
+            )}
+            <NavLink
+              to={path}
+              className={({ isActive }) =>
+                `flex gap-4 py-3.5 px-6 ${
+                  isActive
+                    ? "text-yellow-400 bg-white/10  mt-2 rounded-lg"
+                    : "text-white mt-2 "
+                }`
               }
-              className="flex-1 px-4 h-[40px] border border-[#E5E7EB] shadow rounded-[8px] outline-none"
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-[#4F46E5] text-white px-6 h-[40px] rounded-[8px]"
             >
-              Send
-            </button>
-          </form>
-        </div>
-      </div>
+              <img src={img} alt={text} className="w-[18px] h-[16px]" />
+              <p className="font-normal text-[14px] leading-[14px]">
+                {text}
+              </p>
+            </NavLink>
+          </div>
+        );
+      })}
     </div>
+  </div>
+
+  {/* Chat Panel */}
+  <div className="flex flex-col flex-1 h-full">
+    {/* Header */}
+    <div className="flex justify-between items-center h-[77px] bg-[#4338CA] px-4">
+      <div className="flex items-center">
+        <div className="w-[55px] h-[45px] rounded-2xl flex justify-center items-center bg-white">
+          <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px]" />
+        </div>
+        <h1 className="text-white text-[20px] font-normal ml-4">
+          Legal Assistant
+        </h1>
+      </div>
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="px-4 py-2 bg-red-400 text-white rounded-[8px] shadow-2xl"
+      >
+        Logout
+      </button>
+    </div>
+
+    {/* Chat content area */}
+    <div className="flex-1 overflow-y-auto p-6 bg-gray-100 space-y-4">
+      {messages && messages.length > 0 ? (
+        messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`max-w-[75%] p-4 rounded-lg shadow whitespace-pre-wrap ${
+              msg.role === "user"
+                ? "bg-white self-end ml-auto border border-gray-300"
+                : "bg-[#E0E7FF] self-start mr-auto"
+            }`}
+          >
+            {msg.role === "user" ? (
+              <p className="text-sm">{msg.prompt}</p>
+            ) : (
+              <div>{renderMarkdown(msg.response)}</div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
+          <div className="text-5xl mb-4">⚖️</div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">
+            How can I help you with laws today?
+          </h2>
+          <p className="text-sm text-gray-500 max-w-md">
+            Ask about <span className="font-medium text-blue-500">RTI drafting</span>,
+            <span className="font-medium text-green-500"> FIR generation</span>, or
+            <span className="font-medium text-purple-500"> legal advice</span>.
+          </p>
+        </div>
+      )}
+{navigation.state === "submitting" && (
+  <div className="flex items-center gap-2 mt-10 text-center">
+    <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse" />
+    <p className="text-sm text-gray-500">Thinking...</p>
+  </div>
+)}
+
+
+      <div ref={messagesEndRef} />
+    </div>
+
+    {/* Chat input bar */}
+    <div className="p-4 bg-white border-t border-gray-200">
+      <form
+        ref={formRef}
+        method="post"
+        className="flex gap-4 max-w-4xl mx-auto"
+        onSubmit={handleSubmit}
+      >
+        {/* Voice input button */}
+        <button
+          type="button"
+          onClick={startVoiceRecognition}
+          className={`px-3 rounded-md cursor-pointer border ${
+            recognizing ? "bg-yellow-100" : "bg-gray-100"
+          } border-gray-300`}
+          title="Click to speak"
+        >
+          🎤
+        </button>
+
+        <input
+          type="text"
+          name="prompt"
+          ref={inputRef}
+          placeholder={
+            navigation.state === "submitting" ? "Please wait..." : "Ask anything..."
+          }
+          className="flex-1 px-4 h-[40px] border border-[#E5E7EB] shadow rounded-[8px] outline-none"
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[40px] rounded-[8px]"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
   );
 };
 

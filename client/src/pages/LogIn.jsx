@@ -1,19 +1,23 @@
 import React, { useEffect } from 'react'
-import { Form, redirect, useNavigate } from "react-router";
+import { Form, redirect, useNavigate, useNavigation } from "react-router";
+import { toast } from 'sonner';
 import customFetch from '../utils/customFetch';
 export const action = async({request}) =>{
   const formdata = await request.formData()
   const data = Object.fromEntries(formdata)
   try {
    const res = await customFetch.post('/login',data)
+   toast.success('Logged In Successfully....')
     return redirect(`/chat/${res.data.userId}`)
   } catch (error) {
+    toast.error('Logging In Failed....');
     console.log(error);
     return error
   }
 }
 const LogIn = () => {
   const navigate = useNavigate()
+  const navigation = useNavigation()
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -22,9 +26,11 @@ const LogIn = () => {
         
         // backend checks JWT from cookie
         if (res?.data?.isLoggedIn) {
+          toast.success('Logged In Successfully....')
           navigate(`/chat/${res.data.user.id}`); // redirect if already logged in
         }
       } catch (err) {
+        // toast.error('Logging In Failed....');
          return navigate('/login')
         // console.log("No valid session:", err.message);
       }
@@ -46,8 +52,12 @@ const LogIn = () => {
         <input type="password"  name="password" id="password" className='flex items-center px-2 outline-0 w-[384px] h-[42px] justify-center border-[#D1D5DB] border rounded-[8px] '/>
         </div>
         <div className='flex justify-center items-center' >
-        <button type="submit" className='bg-[#1E3A8A] mt-4  rounded-[8px] py-2 w-[384px] text-white '>login</button>
-        </div>
+        <button
+  type="submit"
+  className="bg-[#1E3A8A] mt-4 rounded-[8px] py-2 w-[384px] text-white"
+>
+  {navigation.state === 'submitting' ? 'Logging In...' : 'Login'}
+</button> </div>
         <div className='mt-4 flex justify-center gap-1 items-center ' >
           <img src="/lock.png" alt="#" className='w-[14px] h-[16px]' />
           <h1 className='font-normal text-[14px] leading-[100%] text-[#6B7280]  ' >Your information is encrypted and secure</h1>
