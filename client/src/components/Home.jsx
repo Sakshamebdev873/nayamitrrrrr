@@ -255,9 +255,7 @@ export function Home() {
             />
             
         </div>
-        <div className='mx-auto my-10 '>
-        <Awareness/>
-        </div>
+      
         {/* contact */}
         <div className='m-15 transition-transform duration-400 hover:scale-105 relative group'>
           <section className="mt-20">

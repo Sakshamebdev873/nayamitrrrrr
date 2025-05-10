@@ -499,7 +499,6 @@ Applicant Details:
 Place: ${place}
 Date: ${date}`;
 };
-
 const firPrompt = (
   description,
   language,

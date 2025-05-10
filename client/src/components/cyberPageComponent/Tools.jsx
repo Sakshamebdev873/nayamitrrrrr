@@ -45,7 +45,7 @@ const resources = [
   {
     name: 'Have I Been Pwned - Data Breach Checker',
     description:
-      'Check if your personal data has been exposed in past security breaches.',
+    'Easily check whether your personal data has been exposed in previous security breaches.',
     link: 'https://haveibeenpwned.com/',
     tutorial:
       'Enter your email or username. Review breaches and follow guidance to change passwords or enable 2FA.',
@@ -62,7 +62,7 @@ export function ToolsAndResources() {
         <motion.div
           key={index}
           whileHover={{ scale: 1.03 }}
-          className="transition-shadow hover:shadow-xl rounded-xl"
+          className="transition-shadow  rounded-xl"
         >
           <Card className="border border-indigo-200 ">
             <CardHeader

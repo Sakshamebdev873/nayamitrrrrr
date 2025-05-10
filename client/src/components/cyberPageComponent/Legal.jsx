@@ -3,7 +3,7 @@ import { Card1, CardContent, CardDescription, CardHeader, CardTitle } from "../.
 
 export function CyberLawCard() {
   return (
-    <Card1 className="transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border border-green-200 bg-gray-50">
+    <Card1 className=" border min-w-[90vw] px-2 border-green-200 bg-gray-50">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-green-800 flex items-center gap-2">
         </CardTitle>
