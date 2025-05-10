@@ -1,13 +1,11 @@
 import { Gavel, Link as LinkIcon, ShieldAlert, UserX } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/cards";
+import { Card1, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/cards";
 
 export function CyberLawCard() {
   return (
-    <Card className="transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border border-green-200 bg-green-50">
+    <Card1 className="transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border border-green-200 bg-gray-50">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-green-800 flex items-center gap-2">
-          <Gavel className="w-6 h-6" />
-          Cyber Law & IT Act Essentials
         </CardTitle>
         <CardDescription className="text-gray-700">
           Key provisions of the <strong>Indian IT Act 2000</strong> that every digital citizen must know.
@@ -53,6 +51,6 @@ export function CyberLawCard() {
           Learn more about the IT Act
         </a>
       </CardContent>
-    </Card>
+    </Card1>
   );
 }

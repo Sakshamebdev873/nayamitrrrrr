@@ -1,7 +1,5 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import { NavLink, useLocation } from "react-router-dom";
-
-import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 
 // import { GoLaw } from "react-icons/go";
@@ -69,9 +67,32 @@ export function Navbar() {
   //   }
   // }
   const [click,useClick] = useState(false); 
+  const [date,setDate] = useState(new Date().toLocaleTimeString())
+  const day = new Date().getDay();
+  const days = ['Sun','Mon','Tue','Wed','Thr','Fri','Sat']
+  console.log( Date());
+  
+  useEffect(()=>{
+    const interval = setInterval(()=>(
+      setDate(new Date().toLocaleTimeString())
+    ),1000)
+
+    return () => clearInterval(interval);
+  },[date])
+
 
   return (
     <>
+    <div className="flex justify-between items-center w-full h-5 bg-black/80 font-light text-sm  ">
+      <div className="flex gap-1">
+        <div className="px-5 text-white">{date}</div>
+        <div className="px-5 text-white ">{days[day]}</div>
+      </div>
+      <div className="flex space-2">
+      
+      </div>
+    </div>
+      
       {pathname === '/chat' ? <></> : pathname === "/login" || pathname === "/signup" ? (
         <>
           <div className="flex mt-7  justify-between ml-5 ">

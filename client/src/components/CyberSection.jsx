@@ -8,10 +8,8 @@ import { ToolsAndResources } from './cyberPageComponent/Tools';
 
 import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
-  PieChart,
-  Pie,
-  Cell,
   Tooltip,
   ResponsiveContainer,
   LineChart,
@@ -22,18 +20,8 @@ import {
 } from "recharts";
 import {
   ShieldAlert,
-  KeyRound,
   Link as LinkIcon,
-  Gavel,
-  Users,
-  BarChart4,
-  Wrench,
-  AlertTriangle,
-  BookOpen,
-  AlertCircle,
-  PhoneOff,
-  WifiOff,
-  XCircle
+
 } from 'lucide-react';
 const lineData = [
   { year: 2019, incidents: 21000 },
@@ -44,67 +32,7 @@ const lineData = [
 ];
 
 
-const pieData = [
-  { name: "Phishing", value: 35 },
-  { name: "Identity Theft", value: 25 },
-  { name: "Online Scams", value: 20 },
-  { name: "Malware Attacks", value: 10 },
-  { name: "Cyberbullying", value: 10 },
-];
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#ff6666"];
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/cards'
-// import { Badge } from './ui/badge';
-import { motion } from 'framer-motion';
-
-// --- Live Poll Component ---
-function LivePoll() {
-  const [votes, setVotes] = useState({ phishing: 8, idtheft: 4, scams: 3 }); // Example starting votes
-  const [voted, setVoted] = useState(false);
-
-  const handleVote = (option) => {
-    if (!voted) {
-      setVotes((prev) => ({ ...prev, [option]: prev[option] + 1 }));
-      setVoted(true);
-    }
-  };
-
-  const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
-
-  return (
-    <div className="mb-6">
-      <h4 className="font-semibold text-lg font-serif mb-2">Live Poll: Which cybercrime worries you most?</h4>
-      <div className="flex gap-4">
-        {Object.entries({ phishing: "Phishing", idtheft: "Identity Theft", scams: "Online Scams" }).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => handleVote(key)}
-            disabled={voted}
-            className={`px-4 py-2 rounded-full font-medium transition-colors ${
-              voted ? "bg-gray-300 text-gray-500" : "bg-white hover:bg-indigo-100 text-indigo-700"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <div className="mt-4 space-y-1">
-        {Object.entries({ phishing: "Phishing", idtheft: "Identity Theft", scams: "Online Scams" }).map(([key, label]) => (
-          <div key={key} className="flex items-center gap-x-40">
-            <span className="w-28 font-light">{label}</span>
-            <div className="flex-1 bg-gray-200 rounded h-3">
-              <div
-                className="bg-indigo-500 h-3 rounded"
-                style={{ width: `${(votes[key] / totalVotes) * 100}%` }}
-              />
-            </div>
-            <span className="w-8 text-end">{votes[key]}</span>
-          </div>
-        ))}
-      </div>
-      {voted && <div className="mt-2 text-green-600 font-medium font-mono">Thank you for voting!</div>}
-    </div>
-  );
-}
 
 function YearlyIncidentsChart() {
   return (
@@ -127,56 +55,29 @@ rounded-lg shadow-lg animate-fadeIn">
   );
 }
 
-// --- Interactive Fact Component ---
-function InteractiveFact() {
-  const [revealed, setRevealed] = useState(false);
 
-  return (
-    <div className="bg-white/90 rounded-lg p-4 shadow flex items-center gap-4 mt-4">
-      <span className="text-2xl">💡</span>
-      <div>
-        <span className="font-semibold font-serif ">Did you know?</span>
-        {!revealed ? (
-          <button
-            onClick={() => setRevealed(true)}
-            className="ml-3 px-3 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
-          >
-            Reveal
-          </button>
-        ) : (
-          <span className="ml-3 text-gray-700">
-            Cybercrime costs India over <b>$8 billion</b> annually.
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// --- Enhanced Additional Insights Panel ---
 function AdditionalInsightsPanel() {
   return (
     <>
-    <div className="p-6 rounded-xl shadow-xl text-black flex flex-col gap-3 justify-center">
+    <div className="p-3 hover:shadow-xl shadow-gray-100 border border-green-300/30 rounded-2xl hover:scale-103 transition-all duration-500 rounded-b-2xl text-black flex flex-col bg-gray-50 gap-y-3 items-between min-w-[450px] h-full mt-23 ease-in-out">
       
       <div className='flex justify-around'>
-      <ul className="list-none pl-2 space-y-3 flex flex-col gap-y-2 text-md font-light mb-6">
+      <ul className="list-disc list-inside flex flex-col gap-y-3 space-y-1 text-md font-light mb-6 w-full">
       <h3 className="text-2xl font-bold mb-4">Additional Insights</h3>
         <li>Phishing attacks account for nearly 40% of reported incidents.</li>
         <li>Ransomware attacks have increased by 25% in the last year.</li>
         <li>Government initiatives are focusing on cybersecurity awareness.</li>
         <li>Remote work has contributed to a rise in cyber vulnerabilities.</li>
+        <li>80% of hacking-related breaches are due to weak or reused passwords.</li>
+        <li>Outdated software, including mobile apps, can be exploited.</li>
+        <li>Early reporting increases the chances of identifying and stopping fraud.</li>
+        <li>In India, you can report anonymously at <a href="https://cybercrime.gov.in" target='_blank' className='text-blue-600'>https://cybercrime.gov.in</a> or call 1930.</li>
       </ul>
-      <YearlyIncidentsChart/>
       </div>
-      <LivePoll />
-      <InteractiveFact />
     </div>
     </>
   );
 }
-
-
 
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -210,36 +111,44 @@ const Badge = forwardRef(
 Badge.displayName = "Badge";
 
 
-
-
 export function CyberSection(){
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 p-6">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mb-12 flex items-center justify-center gap-3">
+    // bg-gradient-to-br from-blue-100 via-voilet-100/30 to-blue-200
+    <div className="min-h-screen bg-gray-50  ">
+    <div className='min-w-full flex justify-between p-10 bg-blue-800/70'>
+      <div className='flex flex-col gap-y-5 items-start ml-5'>
+      <h1 className="text-3xl font-bold text-center text-white mb-12 flex items-center justify-center gap-3">
         <ShieldAlert className="w-8 h-8 text-red-600" />
         Cyber Section - Judiciary Portal
       </h1>
-
+      <p className='text-white text-md ml-10 font-light max-w-[35%]'>Comprehensive cybersecurity resources and tools designed specifically for judicial officers and court personnel.</p>
+      </div>
+      <img src="https://plus.unsplash.com/premium_vector-1726498072933-f6112c1b1396?q=80&w=2154&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image for cyber seq" className='max-h-[25%] w-[30%] rounded-3xl' />
+      </div>
       <div className="flex flex-col gap-y-10">
-
-        {/* 1st Awareness */}
-
-        {/* <Awareness/> */}
   
         {/* 2. Legal Information */}
-        <CyberLawCard/>
+        <div className='flex mt-10 mx-5'>
+          <div className='flex flex-col items-start gap-y-5 mt-5'>
+            <h1 className='mx-10 text-4xl text-blue-600 font-extrabold '>Cyber Law & IT Act Essentials
+            </h1>
+            <CyberLawCard/>
+          </div>
+          <div className='flex flex-col items-start justify-start'>
+            <AdditionalInsightsPanel/>
+          </div>
+        </div>
 
         {/* 5. Cybercrime Statistics */}
         <CyberAnalyticsPage/>
 
-        <AdditionalInsightsPanel/>
 
         {/* 6. Tools & Resources */}
         <ToolsAndResources/>
       </div>
 
       <div className="mt-12 text-center">
-        <Link to="/dashboard" className="text-blue-600 text-lg font-mono underline hover:text-blue-800 transition-colors">
+        <Link to="/dashboard" className="text-blue-900 text-lg font-mono hover:underline transition-all transform duration-300">
           ← Back to Dashboard
         </Link>
       </div>

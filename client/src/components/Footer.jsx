@@ -9,7 +9,7 @@ export function Footer() {
     {pathname === '/chat' ? <></> : pathname === '/login' || pathname === '/signup' ? <>
     
     </>:<>
-      <footer className="bg-blue-900/90 text-white py-10 px-6">
+      <footer className="bg-blue-900/90 text-white py-10 px-6 ">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
         <div>
