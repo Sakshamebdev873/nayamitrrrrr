@@ -134,68 +134,6 @@ export function Navbar() {
             </div>
           </div>
 
-          <div className="flex items-center text-md font-extralight justify-end-safe w-[45%] gap-x-10  ">
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "font-bold" : "font-light"
-                } transition-all duration-200 ease-in-out transform hover:text-blue-700`
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/lawforstate"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "font-bold" : "font-light"
-                } transition-all duration-200 ease-in-out transform hover:text-blue-700 `
-              }
-            >
-              Laws
-            </NavLink>
-            <NavLink
-              to="/cybersection"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "font-bold" : "font-light"
-                } transition-all duration-200 ease-in-out transform hover:text-blue-700`
-              }
-            >
-              Cyber
-            </NavLink>
-            <NavLink
-              to="/analyst"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "font-bold" : "font-light"
-                } transition-all duration-200 ease-in-out transform hover:text-blue-700`
-              }
-            >
-              Analysis
-            </NavLink>
-            <NavLink
-              to="/legalAssistance"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "font-bold" : "font-light"
-                } transition-all duration-200 ease-in-out transform hover:text-blue-700`
-              }
-            >
-              Assistance
-            </NavLink>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "font-bold" : "font-light"
-                } transition-all duration-200 ease-in-out transform hover:text-blue-700`
-              }
-            >
-              Dashboard
-            </NavLink>
-          </div>
 
           <div className="flex items-center gap-5 mr-5">
             <div className="flex flex-col"></div>

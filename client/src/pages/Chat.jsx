@@ -416,7 +416,7 @@ const navigate = useNavigate()
           <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 bg-[#3c32b5] shadow-2xl mr-4 text-white rounded-[8px] border-none border-white "
+            className="px-4 py-2 bg-red-400 shadow-2xl mr-4 text-white rounded-[8px] border-none border-white "
           >
             Logout
           </button>

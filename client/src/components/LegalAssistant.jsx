@@ -192,11 +192,7 @@
 //   );
 // };
 
-
-
-
 // // Import and use your form components (AffidavitForm, RentalAgreementForm, etc.) above this page component as you already have them.
-
 
 // // --- Legal Forms ---
 
@@ -307,7 +303,6 @@
 //     </div>
 //   );
 // }
-
 
 // const PetitionForDivorceForm = ({ onClose }) => {
 //   const [petitionerName, setPetitionerName] = useState('');
@@ -484,157 +479,531 @@
 //     </div>
 //   );
 // };
-import React from 'react'
-import {Form} from 'react-router'
-const LegalAssistant = () => {
-const cardData = [
-  {
-    head : "Police & Criminal Matters",
-    i1:'/c1.png',
-    i2:'/c2.png',
-    i3:'/c3.png',
-    g :'/g1.png',
-    h1:'First Information Report (FIR)',
-    h2 : 'Police Complaint',
-    h3 : 'Missing Person Report'
-  },{
-    head : "Government Requests",
-    i1:'/c4.png',
-    i2:'/c5.png',
-    i3:'/c6.png',
-    g :'/g2.png',
-    h1:'RTI Application',
-    h2 : 'Public Grievance Petition',
-    h3 : 'Government Service Complaint'
-  },{
-    head : "Civil Matters",
-    i1:'/c7.png',
-    i2:'/c8.png',
-    i3:'/c9.png',
-    g :'/g3.png',
-    h1:'Consumer Complaint',
-    h2 : 'Tentant/Landlord Notices',
-    h3 : 'Small Cases Filing'
-  },{
-    head : "Personal & Legal Documents",
-    i1:'/c10.png',
-    i2:'/c11.png',
-    i3:'/c12.png',
-    g :'/g4.png',
-    h1:'Affidavit Template',
-    h2 : 'Legal Notice Format',
-    h3 : 'Power of Attorney'
+import React, { useEffect, useState } from "react";
+import jsPDF from 'jspdf';
+import { Form, useActionData } from "react-router-dom"; // Updated for modern usage
+import customFetch from '../utils/customFetch'
+export const action = async ({ request }) => {
+  const formdata = await request.formData();
+  
+  // Convert FormData to object with trimmed values
+  const data = Object.fromEntries(formdata);
+
+  
+
+  try {
+    const res = await customFetch.post('/docs', data)
+    console.log(res);
+    return res.data.draft;
+  } catch (error) {
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      config: error.config
+    });
+    
+    return {
+      error: error.response?.data?.message || 
+             `Document generation failed (${error.response?.status || 'no status'})`
+    };
   }
-]
+};
+const basicMarkdownToHtml = (markdown) => {
+  let html = markdown;
+
+  // Basic heading replacement (atx style)
+  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+
+  // Basic bold and italic
+  html = html.replace(/\*\*(.*?)\*\*/gim, '<b>$1</b>');
+  html = html.replace(/\*(.*?)\*/gim, '<i>$1</i>');
+  html = html.replace(/__(.*?)__/gim, '<b>$1</b>'); // Alternative bold
+  html = html.replace(/_(.*?)_/gim, '<i>$1</i>');   // Alternative italic
+
+  // Basic unordered lists
+  html = html.replace(/^\* (.*$)/gim, '<li>$1</li>');
+  const ulRegex = /^(<li>.*?<\/li>\n*)+/gim;
+  html = html.replace(ulRegex, '<ul>$&</ul>');
+
+  // Basic line breaks (two spaces at the end of a line)
+  html = html.replace(/  \n/g, '<br />\n');
+
+  // Preserve newlines for other content
+  html = html.replace(/\n/g, '<br />\n');
+
+  return html;
+};
+// Assuming you are using React Router
+const LegalAssistant = () => {
+  const [type, setDocumentType] = useState("");
+  const [language, setLanguage] = useState("");
+  const [showPreview, setShowPreview] = useState(true);
+  const data = useActionData();
+// console.log(data);
+  const [formData, setFormData] = useState({
+    description: "",
+    policeStation: "",
+    name: "",
+    address: "",
+    contact: "",
+    occupation: "",
+    accusedName: "",
+    accusedAddress: "",
+    relationshipToComplainant: "",
+    incidentDate: "",
+    incidentTime: "",
+    incidentPlace: "",
+    natureOfOffense: "",
+    witnesses: "",
+    evidence: "",
+    actionRequest: "",
+    fullName: "",
+    fatherOrHusbandName: "",
+    rtiAddress: "",
+    pinCode: "",
+    officePhone: "",
+    residencePhone: "",
+    mobile: "",
+    isBPL: "",
+    feeDetails: {
+      paymentMode: "",
+      refNumber: "",
+      paymentDate: "",
+      issuingAuthority: "",
+      amount: ""
+    },
+    infoRequired: "",
+    preferredFormat: "",
+    place: "",
+    date: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFeeDetailsChange = (e) => {
+    setFormData({
+      ...formData,
+      feeDetails: {
+        ...formData.feeDetails,
+        [e.target.name]: e.target.value
+      }
+    });
+  };
+
+  const handleGenerate = (e) => {
+    return setShowPreview(true)
+    // If validation passes, the form will submit and the action will be called
+    // After the action returns data, the 'data' state will be updated
+  };
+
+  // const handleDownload = () => {
+  //   if (data) {
+  //     const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+  //     const url = URL.createObjectURL(blob);
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.download = `legal_document.${language === 'Hindi' ? 'pdf' : 'pdf'}`; // You might want to adjust the filename
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     URL.revokeObjectURL(url);
+  //   }
+  // };
+const handleDownload = () => {
+  if (data) {
+    const doc = new jsPDF('p', 'mm', 'a4'); // 'a4' specifies the A4 page size
+    doc.text(data, 10, 10);
+    doc.save(`legal_document.pdf`);
+  }
+};
+
+
+  // useEffect(() => {
+  //   if (data) {
+  //     setShowPreview(true);
+  //   } else {
+  //     setShowPreview(false);
+  //   }
+  // }, [data]);
+
+  const cardData = [
+    {
+      head: "Police & Criminal Matters",
+      i1: "/c1.png",
+      i2: "/c2.png",
+      i3: "/c3.png",
+      g: "/g1.png",
+      h1: "First Information Report (FIR)",
+      h2: "Police Complaint",
+      h3: "Missing Person Report",
+    },
+    {
+      head: "Government Requests",
+      i1: "/c4.png",
+      i2: "/c5.png",
+      i3: "/c6.png",
+      g: "/g2.png",
+      h1: "RTI Application",
+      h2: "Public Grievance Petition",
+      h3: "Government Service Complaint",
+    },
+    {
+      head: "Civil Matters",
+      i1: "/c7.png",
+      i2: "/c8.png",
+      i3: "/c9.png",
+      g: "/g3.png",
+      h1: "Consumer Complaint",
+      h2: "Tenant/Landlord Notices",
+      h3: "Small Cases Filing",
+    },
+    {
+      head: "Personal & Legal Documents",
+      i1: "/c10.png",
+      i2: "/c11.png",
+      i3: "/c12.png",
+      g: "/g4.png",
+      h1: "Affidavit Template",
+      h2: "Legal Notice Format",
+      h3: "Power of Attorney",
+    },
+  ];
+
   return (
     <>
-    <div className='flex gap-4 justify-center pb-12 items-center mt-12' >
-{/* cards */}
-{cardData.map((item,index) =>{
-  const {head,g,h1,h2,h3,i1,i2,i3} = item
-  return <div className='min-w-[22vw] bg-white shadow-2xl min-h-[55vh] border-t-4 rounded-[8px] border-[#800020] ' >
-  {/*  */}
-<div className='flex flex-col justify-center items-center' >
-<div className='flex gap-5 max-w-[20vw] justify-center  mt-4 items-center ' >
-<img src={g} alt="#" className='h-[48px] w-[50px]' />
-<h1 className='font-bold text-[20px] leading-[20px] text-[#0A2342]'>{head}</h1>
-</div>
-<div className='mt-8 flex flex-col gap-8 justify-center min-w-[16vw] max-w-[18vw] items-start'>
-  <div className='flex gap-4 items-center mt-2'>
-    <img src={i1} alt="#" className='w-[18px] h-[18px]' />
-    <h1 className='text-[16px] font-normal leading-[16px] text-[#000000]'>{h1}</h1>
-  </div>
-  <div className='flex gap-4 items-center mt-6'>
-    <img src={i2} alt="#" className='w-[18px] h-[18px]' />
-    <h1 className='text-[16px] font-normal leading-[16px] text-[#000000]'>{h2}</h1>
-  </div>
-  <div className='flex gap-4 items-center mt-6'>
-    <img src={i3} alt="#" className='w-[18px] h-[18px]' />
-    <h1 className='text-[16px] font-normal leading-[16px] text-[#000000]'>{h3}</h1>
-  </div>
-</div>
+      
+      <div className="flex gap-4 justify-center pb-12 items-center mt-12">
+        {cardData.map((item, index) => {
+          const { head, g, h1, h2, h3, i1, i2, i3 } = item;
+          return (
+            <div
+              key={index}
+              className="min-w-[22vw] bg-white shadow-2xl min-h-[55vh] border-t-4 rounded-[8px] border-[#800020]"
+            >
+              <div className="flex flex-col justify-center items-center">
+                <div className="flex gap-5 max-w-[20vw] justify-center mt-4 items-center">
+                  <img
+                    src={g}
+                    alt="category-icon"
+                    className="h-[48px] w-[50px]"
+                  />
+                  <h1 className="font-bold text-[20px] leading-[20px] text-[#0A2342]">
+                    {head}
+                  </h1>
+                </div>
+                <div className="mt-8 flex flex-col gap-8 justify-center min-w-[16vw] max-w-[18vw] items-start">
+                  <div className="flex gap-4 items-center mt-2">
+                    <img src={i1} alt="icon" className="w-[18px] h-[18px]" />
+                    <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">
+                      {h1}
+                    </h1>
+                  </div>
+                  <div className="flex gap-4 items-center mt-6">
+                    <img src={i2} alt="icon" className="w-[18px] h-[18px]" />
+                    <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">
+                      {h2}
+                    </h1>
+                  </div>
+                  <div className="flex gap-4 items-center mt-6">
+                    <img src={i3} alt="icon" className="w-[18px] h-[18px]" />
+                    <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">
+                      {h3}
+                    </h1>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="p-6 max-w-[800px] mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Create Legal Document</h1>
+        <Form method="post" onSubmit={handleGenerate} className="space-y-4">
+          <select
+            name="type"
+            value={type}
+            onChange={(e) => setDocumentType(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">Select Document Type</option>
+            <option value="FIR">FIR</option>
+            <option value="RTI">RTI</option>
+          </select>
 
-</div>
-</div>
-})}
-    </div>
-    {/* Document */}
-    <div className='mt-12 pb-12' >
-<div className='flex gap-5 justify-center items-center ' >
-<div className='min-h-[75vh] shadow-2xl rounded-[8px] min-w-[45vw] ' >
-<h1 className='p-4 font-bold text-[24px] leading-[24px] text-[#0A2342]' >Create Document</h1>
-<Form method='post' className='mt-7 flex flex-col px-6' >
-  <h1 className='font-medium text-[14px] leading-[100%] text-[#374151]'>Type</h1>
-<div className="relative w-[552px]">
-  <select
-    name="type"
-    id="type"
-    className="w-full h-[47px] border mt-4 border-[#E5E7EB] rounded px-2 appearance-none"
-    defaultValue=""
-  >
-    <option value="" disabled hidden>Select type of Document</option>
-    <option value="FIR">FIR</option>
-    <option value="RTI">RTI</option>
-  </select>
+          <select
+            name="language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">Select Language</option>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+          </select>
 
-  {/* Custom dropdown arrow shifted a bit left */}
-  <div className="pointer-events-none absolute inset-y-0 right-6 top-4 flex items-center">
-    <svg
-      className="w-4 h-4 text-gray-500"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
+          {type === "FIR" && (
+            <>
+              <textarea
+                name="description"
+                placeholder="Description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="policeStation"
+                placeholder="Police Station"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="name"
+                placeholder="Your Name"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="address"
+                placeholder="Your Address"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="contact"
+                placeholder="Contact Number"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="occupation"
+                placeholder="Occupation"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="accusedName"
+                placeholder="Accused Name"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="accusedAddress"
+                placeholder="Accused Address"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="relationshipToComplainant"
+                placeholder="Relationship to Complainant"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="incidentDate"
+                type="date"
+                placeholder="Date of Incident"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="incidentTime"
+                type="time"
+                placeholder="Time of Incident"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="incidentPlace"
+                placeholder="Place of Incident"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="natureOfOffense"
+                placeholder="Nature of Offense"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                name="witnesses"
+                placeholder="Witnesses"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                name="evidence"
+                placeholder="Evidence"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                name="actionRequest"
+                placeholder="Action Requested"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </>
+          )}
+
+          {type === "RTI" && (
+            <>
+              <input
+                name="fullName"
+                placeholder="Full Name"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="fatherOrHusbandName"
+                placeholder="Father/Husband Name"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="rtiAddress"
+                placeholder="Address"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="pinCode"
+                placeholder="PIN Code"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="officePhone"
+                placeholder="Office Phone"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="residencePhone"
+                placeholder="Residence Phone"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="mobile"
+                placeholder="Mobile Number"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="isBPL"
+                placeholder="Are you BPL? (Yes/No)"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <div className="space-y-4 p-4 border rounded">
+                <h3 className="font-bold">Fee Details</h3>
+                <select
+                  name="paymentMode"
+                  value={formData.feeDetails.paymentMode}
+                  onChange={handleFeeDetailsChange}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Select Payment Mode</option>
+                  <option value="Demand Draft">Demand Draft</option>
+                  <option value="Banker's Cheque">Banker's Cheque</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Online Payment">Online Payment</option>
+                </select>
+
+                <input
+                  name="refNumber"
+                  placeholder="Reference Number"
+                  value={formData.feeDetails.refNumber}
+                  onChange={handleFeeDetailsChange}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  name="paymentDate"
+                  type="date"
+                  placeholder="Payment Date"
+                  value={formData.feeDetails.paymentDate}
+                  onChange={handleFeeDetailsChange}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  name="issuingAuthority"
+                  placeholder="Issuing Authority"
+                  value={formData.feeDetails.issuingAuthority}
+                  onChange={handleFeeDetailsChange}
+                  className="w-full p-2 border rounded"
+                />
+
+                <input
+                  name="amount"
+                  type="number"
+                  placeholder="Amount"
+                  value={formData.feeDetails.amount}
+                  onChange={handleFeeDetailsChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <textarea
+                name="infoRequired"
+                placeholder="Information Required"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="preferredFormat"
+                placeholder="Preferred Format (Soft Copy/Hard Copy)"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="place"
+                placeholder="Place"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                name="date"
+                type="date"
+                placeholder="Date"
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </>
+          )}
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Generate
+          </button>
+        </Form>
+
+        {data && (
+  <div className="mt-8 p-6  rounded border border-gray-400 shadow-2xl">
+    <h2 className="text-xl font-bold mb-2">Preview</h2>
+    <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: basicMarkdownToHtml(data) }} />
+    <button
+      onClick={handleDownload}
+      className="bg-green-600 text-white px-4 py-2 rounded mt-4"
     >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-    </svg>
+      Download
+    </button>
   </div>
-  
-</div>
-{/* Language */}
-  <h1 className='font-medium text-[14px] mt-5 leading-[100%] text-[#374151]'>Language</h1>
-<div className="relative w-[552px]">
-  <select
-    name="language"
-    id="language"
-    className="w-full h-[47px] border mt-4 border-[#E5E7EB] rounded px-2 appearance-none"
-    defaultValue=""
-  >
-    <option value="" disabled hidden>Select type of Language</option>
-    <option value="English">English</option>
-    <option value="Hindi">Hindi</option>
-  </select>
-
-  {/* Custom dropdown arrow shifted a bit left */}
-  <div className="pointer-events-none absolute inset-y-0 right-6 top-4 flex items-center">
-    <svg
-      className="w-4 h-4 text-gray-500"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-  
-</div>
-<h1 className='font-medium text-[14px] mt-5 leading-[100%] text-[#374151]'>Description</h1>
-<textarea
-  name="description"
-  id="description"
-  className="w-[552px] h-[128px] border mt-4 border-[#E5E7EB] rounded-[8px] p-3"
-  placeholder="Enter the description"
-/>
-<button type="submit" className='w-[552px] h-[40px] rounded-[8px] mt-4 px-2 bg-[#0A2342] cursor-pointer text-white' >Generate</button>
-</Form>
-</div>
-<div className='min-h-[75vh] shadow-2xl rounded-[8px] min-w-[45vw] bg-black ' >
-
-</div>
-</div>
-    </div>
+)}
+      </div>
     </>
-  )
-}
+  );
+};
 
-export default LegalAssistant
+export default LegalAssistant;
+
+
 

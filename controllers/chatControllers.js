@@ -420,11 +420,84 @@ export const analyzePdf = async (req, res) => {
 
 // Helper functions to prepare the prompt for FIR or RTI
 
-const rtiPrompt = (description, language) => {
+
+const rtiPrompt = (
+  language,
+  fullName,
+  fatherOrHusbandName,
+  address,
+  pinCode,
+  officePhone,
+  residencePhone,
+  mobile,
+  isBPL,
+  feeDetails,
+  infoRequired,
+  preferredFormat,
+  place,
+  date
+) => {
   if (language === "Hindi") {
-    return `नीचे दी गई जानकारी के आधार पर एक आरटीआई (सूचना का अधिकार) आवेदन पत्र तैयार करें। इसे एक औपचारिक पत्र के रूप में तैयार करें, जैसा कि किसी सरकारी कार्यालय में भेजा जाता है:\n\n${description}\n\nकेवल आरटीआई आवेदन पत्र दें।`;
+    return `आप एक कानूनी सहायक एआई हैं। नीचे दिए गए विवरणों के आधार पर, कृपया सूचना का अधिकार अधिनियम 2005 के अंतर्गत एक औपचारिक आवेदन पत्र तैयार करें।
+
+निर्देश:
+- आवेदन पत्र को इस शीर्षक से प्रारंभ करें: "सूचना के अधिकार अधिनियम 2005 के अंतर्गत सूचना प्राप्त करने हेतु आवेदन प्रपत्र"
+- प्राप्तकर्ता: केंद्रीय जन सूचना अधिकारी, पर्यटन मंत्रालय, भारत सरकार, C-1 हटमेंट्स, डलहौज़ी रोड, नई दिल्ली – 110011
+- क्रमांक 1 से 7 तक स्पष्ट रूप से विवरण भरें
+- अंत में निम्नलिखित घोषणा जोड़ें:
+  "मैं यह घोषणा करता/करती हूं कि मांगी गई सूचना आरटीआई अधिनियम की धारा 8 और 9 के प्रतिबंधों के अंतर्गत नहीं आती है और मेरी जानकारी के अनुसार यह आपके कार्यालय से संबंधित है।"
+- स्थान और दिनांक जोड़ें
+- केवल पत्र रूप में उत्तर दें — कोई अतिरिक्त टिप्पणी या व्याख्या नहीं।
+
+आवेदक विवरण:
+1. पूरा नाम: ${fullName}
+2. पिता/पति का नाम: ${fatherOrHusbandName}
+3. पूरा पता: ${address}
+   पिन कोड: ${pinCode}
+4. दूरभाष: कार्यालय - ${officePhone}, आवास - ${residencePhone}, मोबाइल - ${mobile}
+5. बीपीएल श्रेणी से संबंधित: ${isBPL ? "हां (प्रमाण संलग्न करें)" : "नहीं"}
+6. शुल्क विवरण: 
+   भुगतान का माध्यम: ${feeDetails.paymentMode || "Not Provided"}
+   संदर्भ संख्या: ${feeDetails.refNumber || "Not Provided"}
+   भुगतान की तिथि: ${feeDetails.paymentDate || "Not Provided"}
+   जारीकर्ता संस्था: ${feeDetails.issuingAuthority || "Not Provided"}
+   राशि: ₹${feeDetails.amount || "Not Provided"}/-
+7. मांगी गई जानकारी: ${infoRequired}
+   वांछित प्रारूप: ${preferredFormat}
+
+स्थान: ${place}
+दिनांक: ${date}`;
   }
-  return `Based on the information provided below, draft a formal Right to Information (RTI) request letter to be submitted to a public authority. Provide only the RTI letter:\n\n${description}\n\nOnly provide the RTI letter.`;
+
+  return `You are a legal assistant AI. Based on the applicant’s information below, generate an RTI application in the **official format** under the Right to Information Act, 2005.
+
+Instructions:
+- Start with: "APPLICATION FORMAT FOR INFORMATION UNDER RTI ACT 2005"
+- Address to: Central Public Information Officer, Ministry of Tourism, Government of India, C-1 Hutments, Dalhousie Road, New Delhi -110011
+- Use numbered fields 1–7 for applicant details and query
+- Add the official declaration:
+  "I state that the information sought does not fall within the restrictions contained in Section 8 & 9 of the RTI Act and to the best of my knowledge it pertains to your office."
+- Include Place and Date
+- Output ONLY the RTI application letter no extra text
+
+Applicant Details:
+1. Full Name: ${fullName}
+2. Father’s/Husband’s Name: ${fatherOrHusbandName}
+3. Address: ${address}
+   Pin Code: ${pinCode}
+4. Telephone No: Office - ${officePhone}, Residence - ${residencePhone}, Mobile - ${mobile}
+5. BPL Category: ${isBPL ? "Yes (BPL Proof Attached)" : "No"}
+6. Application Fee Details: 
+   Mode of Payment: ${feeDetails.paymentMode || "Not Provided"}
+   Reference Number: ${feeDetails.refNumber || "Not Provided"}
+   Payment Date: ${feeDetails.paymentDate || "Not Provided"}
+   Issuing Authority: ${feeDetails.issuingAuthority || "Not Provided"}
+   Amount Paid: Rs. ${feeDetails.amount || "Not Provided"}/-
+7. Particulars of Information Required: ${infoRequired}
+   Preferred Medium: ${preferredFormat}
+
+Place: ${place}
+Date: ${date}`;
 };
 
 const firPrompt = (
@@ -493,34 +566,13 @@ Police Station: ${policeStation}
 // Helper function for FIR prompt
 
 export const generateDocument = asyncHandler(async (req, res) => {
-  const {
-    type,
-    description,
-    language,
-    policeStation,
-    name,
-    address,
-    contact,
-    occupation,
-    accusedName,
-    accusedAddress,
-    relationshipToComplainant,
-    incidentDate,
-    incidentTime,
-    incidentPlace,
-    natureOfOffense,
-    witnesses,
-    evidence,
-    actionRequest,
-  } = req.body;
-
-  let prompt;
-  if (type === "FIR") {
-    // Generate FIR prompt
-    prompt = firPrompt(
-    
-      description,
+  try {
+    const {
+      type,
       language,
+
+      // FIR fields
+      description,
       policeStation,
       name,
       address,
@@ -535,36 +587,150 @@ export const generateDocument = asyncHandler(async (req, res) => {
       natureOfOffense,
       witnesses,
       evidence,
-      actionRequest
-    );
-  } else if (type === "RTI") {
-    // RTI prompt can be created similarly if needed
-    prompt = rtiPrompt(description, language);
-  } else {
-    return res.status(400).json({ error: "Invalid type. Use 'FIR' or 'RTI'." });
-  }
+      actionRequest,
 
-  try {
-    // Generate draft using Gemini AI
-    const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
-    });
+      // RTI fields
+      fullName,
+      fatherOrHusbandName,
+      rtiAddress,
+      pinCode,
+      officePhone,
+      residencePhone,
+      mobile,
+      isBPL,
+      feeDetails,
+      infoRequired,
+      preferredFormat,
+      place,
+      date,
+    } = req.body;
 
-    // Extract the generated FIR text
-    const response = result.text.trim();
+    // Validate required fields
+    if (!type || !language) {
+      return res.status(400).json({ 
+        error: "Missing required fields",
+        details: {
+          missing: [
+            ...(!type ? ["type"] : []),
+            ...(!language ? ["language"] : [])
+          ],
+          message: "Both 'type' and 'language' are required fields"
+        }
+      });
+    }
 
-    // Send response with generated FIR
-    res.status(200).json({
-      message: `${type} draft generated successfully.`,
-      draft: response,
-    });
+    if (!["FIR", "RTI"].includes(type)) {
+      return res.status(400).json({ 
+        error: "Invalid document type",
+        details: {
+          received: type,
+          allowed: ["FIR", "RTI"],
+          message: "Document type must be either 'FIR' or 'RTI'"
+        }
+      });
+    }
+
+    let prompt;
+
+    if (type === "FIR") {
+      // Validate required FIR fields
+      const requiredFirFields = [
+        'description', 'policeStation', 'name', 'address', 
+        'incidentDate', 'incidentPlace', 'natureOfOffense'
+      ];
+      const missingFirFields = requiredFirFields.filter(field => !req.body[field]);
+
+      if (missingFirFields.length > 0) {
+        return res.status(400).json({
+          error: "Missing required FIR fields",
+          details: {
+            missing: missingFirFields,
+            message: `FIR requires these fields: ${requiredFirFields.join(', ')}`
+          }
+        });
+      }
+
+      prompt = firPrompt(
+        description,
+        language,
+        policeStation,
+        name,
+        address,
+        contact,
+        occupation,
+        accusedName,
+        accusedAddress,
+        relationshipToComplainant,
+        incidentDate,
+        incidentTime,
+        incidentPlace,
+        natureOfOffense,
+        witnesses,
+        evidence,
+        actionRequest
+      );
+    } else if (type === "RTI") {
+      // Validate required RTI fields
+      const requiredRtiFields = [
+        'fullName', 'rtiAddress', 'infoRequired', 'place', 'date'
+      ];
+      const missingRtiFields = requiredRtiFields.filter(field => !req.body[field]);
+
+      if (missingRtiFields.length > 0) {
+        return res.status(400).json({
+          error: "Missing required RTI fields",
+          details: {
+            missing: missingRtiFields,
+            message: `RTI requires these fields: ${requiredRtiFields.join(', ')}`
+          }
+        });
+      }
+
+      prompt = rtiPrompt(
+        language,
+        fullName,
+        fatherOrHusbandName,
+        rtiAddress,
+        pinCode,
+        officePhone,
+        residencePhone,
+        mobile,
+        isBPL,
+        feeDetails,
+        infoRequired,
+        preferredFormat,
+        place,
+        date
+      );
+    }
+
+ const result = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents : prompt,
+  });
+
+  const response = result.text; // Also fixed the response extraction
+
+  res.status(200).json({
+    message: `${type} draft generated successfully.`,
+    draft: response,
+  });
   } catch (err) {
-    console.error("Drafting error:", err);
-    res
-      .status(500)
-      .json({ error: "Failed to generate document: " + err.message });
+    console.error("Document generation error:", {
+      error: err,
+      stack: err.stack,
+      requestBody: req.body
+    });
+
+    res.status(500).json({
+      error: "Document generation failed",
+      details: {
+        message: err.message,
+        type: err.name,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+        ...(err.response?.data && { apiError: err.response.data })
+      }
+    });
   }
 });
-
 // Helper function for FIR prompt
