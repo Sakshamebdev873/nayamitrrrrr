@@ -329,17 +329,17 @@ const Chat = () => {
       path: "/lawforstate",
     },
     {
-      img: "/heart.png",
+      img: "/w2.png",
       text: "Cyber Information",
       path: "/cybersection",
     },
     {
-      img: "/heart.png",
+      img: "/w1.png",
       text: "Survey",
       path: "/survey",
     },
     {
-      img: "/heart.png",
+      img: "/n1.png",
       text: "Case Analysis",
       path: "/dashboard",
     },
@@ -377,9 +377,9 @@ const Chat = () => {
             )}
             <NavLink
               to={path}
-              className={({ isActive }) =>
+              className={() =>
                 `flex gap-4 py-3.5 px-6 ${
-                  isActive
+                  index === 0 
                     ? "text-yellow-400 bg-white/10  mt-2 rounded-lg"
                     : "text-white mt-2 "
                 }`
