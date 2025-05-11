@@ -139,26 +139,29 @@ const safetyData = [
   }
 ];
 
-function SafetyCard({ title, icon, tips, helpline,link }) {
-  const [isOpen, setIsOpen] = useState(false);
-
+function SafetyCard({ title, icon, tips, helpline, link, isOpen, onToggle }) {
   return (
     <div
       className="bg-white rounded-xl shadow-lg p-5 hover:shadow-xl cursor-pointer transition"
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={onToggle}
     >
       <div className="flex items-center gap-4 mb-2">
         {icon}
         <h2 className="text-xl font-semibold text-gray-700">{title}</h2>
       </div>
+
       <div className='flex justify-end mr-5'>
-        <a 
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="text-blue-900 text-sm hover:underline">Go visit</a>
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-blue-900 text-sm hover:underline"
+        >
+          Go visit
+        </a>
       </div>
+
       <AnimatePresence>
         {isOpen && (
           <motion.ul
@@ -166,13 +169,14 @@ function SafetyCard({ title, icon, tips, helpline,link }) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4 }}
           >
             {tips.map((tip, idx) => (
               <li key={idx}>{tip}</li>
             ))}
             <div className='flex justify-end'>
-        <h3 className=' font-bold font-mono' >Helpline:{helpline}</h3>
-      </div>
+              <h3 className='font-bold font-mono'>Helpline: {helpline}</h3>
+            </div>
           </motion.ul>
         )}
       </AnimatePresence>
@@ -182,42 +186,46 @@ function SafetyCard({ title, icon, tips, helpline,link }) {
 
 export default function SafetyHub() {
   const [showPopup, setShowPopup] = useState(false);
-  console.log('showPopup state:', showPopup); // Add this line
+  const [openCardIndex, setOpenCardIndex] = useState(null); // <-- New state
+
   return (
     <>
-    <div className='relative h-[800px]'>
-      
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold text-center text-blue-800 mb-10">Safety Hub</h1>
-      <div className='flex justify-between mx-10'>
-          <div className='flex flex-col justify-start'>
-            <h1 className='text-2xl font-bold font-serif mb-5'>Quick Tips for Everyone</h1> 
-            <ul className='list-disc list-inside space-y-3'>
-              <li>Keep emergency contacts on speed dial.</li>
-              <li>Share your live location with trusted contacts while traveling alone.</li>
-              <li>Stay updated on new scams via government or verified channels.</li>
-            </ul>
+      <div className='relative h-[800px]'>
+        <div className="p-6 max-w-6xl mx-auto space-y-6">
+          <h1 className="text-3xl font-bold text-center text-blue-800 mb-10">Safety Hub</h1>
+
+          <div className='flex justify-between mx-10'>
+            <div className='flex flex-col justify-start'>
+              <h1 className='text-2xl font-bold font-serif mb-5'>Quick Tips for Everyone</h1>
+              <ul className='list-disc list-inside space-y-3'>
+                <li>Keep emergency contacts on speed dial.</li>
+                <li>Share your live location with trusted contacts while traveling alone.</li>
+                <li>Stay updated on new scams via government or verified channels.</li>
+              </ul>
+
               <button
-          className='bg-red-700 text-white px-1 py-2 font-bold max-w-[50%] rounded-xl hover:bg-red-500 transition-all duration-300 scale-105 m-5 '
-          onClick={() => {
-          setShowPopup(true);
-          }}
-          >
-            <Phone className='mr-3 inline-block'/>Emergency Contacts
-            </button>
+                className='bg-red-700 text-white px-1 py-2 font-bold max-w-[50%] rounded-xl hover:bg-red-500 transition-all duration-300 scale-105 m-5'
+                onClick={() => setShowPopup(true)}
+              >
+                <Phone className='mr-3 inline-block' />Emergency Contacts
+              </button>
+
               {showPopup && <SafetyPlainPopup onClose={() => setShowPopup(false)} />}
+            </div>
           </div>
 
-        </div>  
-        
-      <div className="flex flex-col justify-end max-w-[40%] gap-6 absolute right-5 top-20 ">
-        {safetyData.map(({ title, icon, tips, key ,link,helpline}) => (
-          <SafetyCard key={key} title={title} icon={icon} tips={tips} helpline={helpline} link={link} />
-        ))}
+          <div className="flex flex-col justify-end max-w-[40%] gap-6 absolute right-5 top-10">
+            {safetyData.map((card, index) => (
+              <SafetyCard
+                key={card.key}
+                {...card}
+                isOpen={openCardIndex === index}
+                onToggle={() => setOpenCardIndex(openCardIndex === index ? null : index)}
+              />
+            ))}
+          </div>
+        </div>
       </div>
-      </div>
-    </div>
-    {/* </div> */}
     </>
   );
 }
