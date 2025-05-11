@@ -19,9 +19,11 @@ import Chat from "./pages/Chat.jsx";
 import { action as signAction } from "./pages/SignUp.jsx";
 import { action as loginAction } from "./pages/LogIn.jsx";
 import { action as chatAction,loader as chatLoader } from "./pages/Chat.jsx";
+import {loader as historyLoader} from './pages/History.jsx'
 import PdfReader from "./components/PdfReader.jsx";
 import SafetyHub from "./components/SafetyHub.jsx";
 import Survey from "./components/Survey.jsx";
+import History from "./pages/History.jsx";
 // import { Auth0Provider } from '@auth0/auth0-react'
 // import { Contact } from './components/Contact.jsx'
 function App() {
@@ -77,7 +79,11 @@ function App() {
           path: "signup",
           element: <SignUp />,
           action: signAction,
-        },
+        },{
+          path : 'history/:id',
+          element : <History/>,
+          loader : historyLoader
+        }
       ],
     },
 

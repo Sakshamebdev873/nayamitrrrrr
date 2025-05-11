@@ -198,31 +198,62 @@ You are “NyayaMitr” an AI legal assistant embedded in the Department of Just
 
 export const getHistory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const sessionId = (req.signedCookies.sessionId || "").trim();
+  console.log(req.userId);
+  
+  // 1. Enhanced cookie logging
+  // console.log('Raw cookie:', req.cookies?.sessionId);
+  // console.log('Signed cookie:', req.signedCookies?.sessionId);
+  const cookieSessionId = (req.signedCookies.sessionId || req.cookies.sessionId || "").toString().trim();
+  // console.log('Normalized cookie ID:', `"${cookieSessionId}"`);
 
-  const user = await User.findById(id);
+  // 2. Verify user exists with sessions
+  const user = await User.findById(id).select('chatSession');
   if (!user) {
-    return res.status(400).json({ msg: "User does not exist" });
+    console.error(`User ${id} not found`);
+    return res.status(404).json({ 
+      success: false,
+      message: "User not found",
+      debug: { receivedUserId: id }
+    });
   }
 
+  // 3. Deep inspection of stored sessions
   const allSessions = user.chatSession || [];
-
-  const currentSession = allSessions.find(
-    (session) => session.sessionId.trim() === sessionId
-  );
-  const otherSessions = allSessions.filter(
-    (session) => session.sessionId.trim() !== sessionId
-  );
-  // Prevent 304 by disabling caching
-  res.set({
-    "Cache-Control": "no-store",
-    Pragma: "no-cache",
-    Expires: "0",
+  console.log(`Found ${allSessions.length} sessions:`);
+  allSessions.forEach((s, i) => {
+    const storedId = s.sessionId?.toString().trim();
+    console.log(`Session ${i}:`, {
+      storedId: `"${storedId}"`,
+      match: storedId === cookieSessionId,
+      typeMatch: typeof storedId === typeof cookieSessionId
+    });
   });
 
+  // 4. Flexible matching (whitespace/case insensitive)
+  const currentSession = allSessions.find(session => {
+    const storedId = session.sessionId?.toString().trim();
+    return storedId?.toLowerCase() === cookieSessionId.toLowerCase();
+  });
+
+  // 5. Final verification before response
+  if (!currentSession) {
+    console.warn('No matching session found for:', {
+      cookieSessionId,
+      availableIds: allSessions.map(s => s.sessionId?.toString().trim())
+    });
+  }
+
   res.status(200).json({
+    success: true,
     currentSession: currentSession || null,
-    otherSessions,
+    otherSessions: allSessions.filter(s => 
+      s.sessionId?.toString().trim() !== cookieSessionId
+    ),
+    _debug: {
+      cookieReceived: cookieSessionId,
+      matchedSessionId: currentSession?.sessionId,
+      allSessionIds: allSessions.map(s => s.sessionId)
+    }
   });
 });
 
@@ -270,11 +301,11 @@ export const getNearbyJudiciaryOSM = async (req, res) => {
 };
 
 const surveyQuestions = [
-  "Are you aware of your fundamental rights?",
-  "Have you ever faced discrimination based on gender, caste, religion, or any other factor?",
-  "Have you experienced or witnessed any legal violation in your community?",
-  "Are you aware of how to file a complaint regarding legal violations?",
-  "Do you feel your rights are protected by the current legal system?",
+  "Do you know any two Fundamental Rights under the Indian Constitution?",
+  "Have you faced discrimination by gender, caste, religion, or other? Briefly explain.",
+  "Have you seen or experienced legal violations (e.g., domestic violence, harassment)? Describe.",
+  "Do you know how to file an FIR? List the main steps.",
+  "How familiar are you with IPC and CrPC? How do they protect citizens?"
 ];
 export const surveyQuestion = async (req, res) => {
   res.status(200).json({ questions: surveyQuestions });
@@ -285,15 +316,22 @@ export const surveyQuestion = async (req, res) => {
 const generateGeminiPrompt = (responses) => {
   const [q1, q2, q3, q4, q5] = responses;
 
-  return `The following are the responses from a user about their fundamental rights:
+  return `
+You are NyayaMitr, an AI legal assistant on the Department of Justice website. A user has completed a short legal-awareness survey. Here are their answers:
 
-1. Awareness of fundamental rights: ${q1}
-2. Experiences of discrimination: ${q2}
-3. Legal violations they have witnessed: ${q3}
-4. Knowledge of how to file complaints: ${q4}
-5. Perceived protection of their rights by the legal system: ${q5}
+1. Fundamental Rights awareness: ${q1}  
+2. Discrimination experience: ${q2}  
+3. Observed or experienced legal violations: ${q3}  
+4. Knowledge of filing an FIR: ${q4}  
+5. Familiarity with IPC/CrPC and their protections: ${q5}
 
-Based on these responses, analyze whether any of the user's fundamental rights are being violated. Provide a summary and explain your conclusion.`;
+Please provide:
+
+• A one-sentence summary of any rights violations or concerns.   
+• One key helpline number or emergency contact. 
+• One immediate next step (e.g., “Draft an FIR”).   
+• Finally, generate a concise, 1-line prompt starting with \#NyayaPrompt:\ that the user can copy and paste into NyayaMitr for the full, detailed guidance (including FIR drafting, legal provisions, and site tool links). 
+  `;
 };
 
 // Helper function to analyze Gemini's response
@@ -317,9 +355,9 @@ const analyzeRightsViolation = (analysis) => {
 };
 
 export const submitSurvey = asyncHandler(async (req, res) => {
-  const { userId, responses } = req.body;
+  const { responses } = req.body;
 
-  if (!userId || !responses || responses.length !== surveyQuestions.length) {
+  if (!responses || responses.length !== surveyQuestions.length) {
     return res.status(400).json({ error: "Invalid survey data." });
   }
 
@@ -344,7 +382,7 @@ export const submitSurvey = asyncHandler(async (req, res) => {
         : "No rights violations detected. Your rights are protected.",
       analysis: analysis,
       Suggestion: violationDetected
-        ? "Please let me help you to file an FIR "
+        ? "Please Let us help you "
         : "You are safe....",
     });
   } catch (err) {
@@ -352,6 +390,7 @@ export const submitSurvey = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "Failed to analyze the survey." });
   }
 });
+
 export const suggestAlternativeResolution = async (req, res) => {
   const { caseType, details } = req.body;
 
@@ -429,6 +468,7 @@ export const analyzePdf = async (req, res) => {
 };
 
 // Helper functions to prepare the prompt for FIR or RTI
+
 
 
 const rtiPrompt = (
@@ -743,3 +783,82 @@ export const generateDocument = asyncHandler(async (req, res) => {
   }
 });
 // Helper function for FIR prompt
+export const changeSession = async (req, res) => {
+  const { sessionId } = req.body;
+
+  if (!sessionId) {
+    return res.status(400).json({ msg: "Session ID is required" });
+  }
+
+  // Clear existing cookie (must match the same settings)
+  res.clearCookie("sessionId", {
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "Lax",
+  });
+
+  // Set new cookie
+  res.cookie("sessionId", sessionId, {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development", // false in dev, true in prod
+    sameSite: "Lax",
+  });
+
+  res.status(200).json({ msg: "Session updated", sessionId });
+};
+export const deleteSession = asyncHandler(async (req, res) => {
+  const { sessionId } = req.body;
+  const userId = req.userId?._id || req.params.id; // Adapt based on your auth
+
+  if (!sessionId || !userId) {
+    return res.status(400).json({
+      success: false,
+      message: "Both sessionId and userId are required"
+    });
+  }
+
+  try {
+    // Find and update user document
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { chatSession: { sessionId } } },
+      { new: true }
+    ).select('chatSession');
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Check if session was actually removed
+    const sessionExists = updatedUser.chatSession.some(
+      session => session.sessionId === sessionId
+    );
+
+    if (sessionExists) {
+      return res.status(400).json({
+        success: false,
+        message: "Session could not be deleted"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Session deleted successfully",
+      remainingSessions: updatedUser.chatSession
+    });
+
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});

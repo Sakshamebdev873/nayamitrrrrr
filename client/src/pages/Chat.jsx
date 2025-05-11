@@ -7,6 +7,7 @@ import {
   useSubmit,
   NavLink,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 import customFetch from "../utils/customFetch";
 import { toast } from "sonner";
@@ -28,6 +29,8 @@ export const loader = async ({ params }) => {
   try {
     const { id } = params;
     const { data } = await customFetch.get(`/history/${id}`);
+    // console.log(data);
+    
     return {
       currentSession: data?.currentSession || null,
     };
@@ -177,6 +180,7 @@ const Chat = () => {
   const submit = useSubmit();
   const formRef = useRef();
   const inputRef = useRef();
+  const {id} = useParams()
   const messagesEndRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState(currentSession?.messages || []);
@@ -185,6 +189,7 @@ const Chat = () => {
   useEffect(() => {
     setMessages(currentSession?.messages || []);
   }, [currentSession]);
+
 
   // Auto-scroll
   useEffect(() => {
@@ -318,6 +323,16 @@ const Chat = () => {
       text: "Generate Documents",
       path: "/legalAssistance",
     },
+     {
+      img: "/w2.png",
+      text: "Cyber Information",
+      path: "/cybersection",
+    },
+    {
+      img: "/w2.png",
+      text: "History",
+      path: `/history/${id}`,
+    },
     {
       img: "/heart.png",
       text: "Safety hub",
@@ -328,11 +343,7 @@ const Chat = () => {
       text: "State Wise Laws",
       path: "/lawforstate",
     },
-    {
-      img: "/w2.png",
-      text: "Cyber Information",
-      path: "/cybersection",
-    },
+   
     {
       img: "/w1.png",
       text: "Survey",
@@ -366,7 +377,7 @@ const Chat = () => {
     <div className="flex flex-col flex-1 overflow-y-auto">
       {Sidebardata.map((item, index) => {
         const { img, text, path } = item;
-        const isResourceHeader = index === 4;
+        const isResourceHeader = index === 5;
 
         return (
           <div key={index}>

@@ -37,7 +37,7 @@ const SignUp = () => {
                   type="text"
                   name="firstName"
                   id="firstName"
-                  className="w-[292px] h-[42px] mt-2 rounded-[8px] border border-[#D1D5DB] "
+                  className="w-[292px] px-2 h-[42px] mt-2 rounded-[8px] border border-[#D1D5DB] "
                 />
               </div>
               <div className="flex flex-col">
@@ -48,7 +48,7 @@ const SignUp = () => {
                   type="text"
                   name="lastName"
                   id="LastName"
-                  className="w-[292px] h-[42px] rounded-[8px] mt-2 border border-[#D1D5DB] "
+                  className="w-[292px] px-2 h-[42px] rounded-[8px] mt-2 border border-[#D1D5DB] "
                 />
               </div>
             </div>
@@ -60,7 +60,7 @@ const SignUp = () => {
                 type="number"
                 name="number"
                 id="number"
-                className="mt-2 w-[608px] h-[42px] rounded-[8px] border border-[#D1D5DB]  "
+                className="mt-2 w-[608px] px-2 h-[42px] rounded-[8px] border border-[#D1D5DB]  "
               />
             </div>
             <div className="mt-4">
@@ -71,7 +71,7 @@ const SignUp = () => {
                 type="email"
                 name="email"
                 id="email"
-                className="mt-2 w-[608px] h-[42px] rounded-[8px] border border-[#D1D5DB]  "
+                className="mt-2 w-[608px] px-2 h-[42px] rounded-[8px] border border-[#D1D5DB]  "
               />
             </div>
             <div className="mt-4">
@@ -82,7 +82,7 @@ const SignUp = () => {
                 type="password"
                 name="password"
                 id="password"
-                className="mt-2 w-[608px] h-[42px] rounded-[8px] border border-[#D1D5DB]  "
+                className="mt-2 w-[608px] px-2 h-[42px] rounded-[8px] border border-[#D1D5DB]  "
               />
             </div>
             <div className="mt-4">
@@ -93,7 +93,7 @@ const SignUp = () => {
                 type="password"
                 name="confirmPassword"
                 id="confirmPassword"
-                className="mt-2 w-[608px] h-[42px] rounded-[8px] border border-[#D1D5DB]  "
+                className="mt-2 w-[608px] px-2 h-[42px] rounded-[8px] border border-[#D1D5DB]  "
               />
             </div>
             <div className="mt-4">
@@ -104,7 +104,7 @@ const SignUp = () => {
                 type="date"
                 name="date"
                 id="date"
-                className="mt-2 w-[608px] h-[42px] rounded-[8px] px-2 border border-[#D1D5DB]  "
+                className="mt-2 w-[608px] px-2 h-[42px] rounded-[8px]  border border-[#D1D5DB]  "
               />
             </div>
             <div className="w-[608px] h-[72px] flex flex-col mt-6 px-4 rounded-[8px] bg-[#F9FAFB]  ">
