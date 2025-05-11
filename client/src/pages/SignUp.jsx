@@ -1,14 +1,17 @@
 import React from "react";
 import { Form, redirect } from "react-router";
 import customFetch from "../utils/customFetch";
+import {toast} from 'sonner'
 export const action = async ({ request }) => {
   const formdata = await request.formData();
   const data = Object.fromEntries(formdata);
   try {
     await customFetch.post("/register", data);
+    toast.success('Successfully registered....')
     return redirect("/login");
   } catch (error) {
-    console.log(error);
+    // console.log(error);
+    toast.error('Registration Failed....')
     return error;
   }
 };
