@@ -2,6 +2,7 @@ import { Badge } from './ui/badge'
 import React from 'react';
 import { useState } from 'react';
 
+
 import { AlertTriangle, Book, BookOpen, ChevronRight, Leaf, MapPin, ShieldAlert, Gavel,CheckCircle } from 'lucide-react';
 import { AnimatePresence, motion }  from 'framer-motion';
 
@@ -159,218 +160,445 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
   );
 };
 
-const stateData = [ {
-  stateName: "Uttarakhand",
-  uniqueBiodiversity: [
-    "Home to rare species like the Himalayan monal (state bird), snow leopard, musk deer, and red fox",
-    "Dense oak, rhododendron, deodar, and alpine forests",
-    "Part of the Western Himalayas biodiversity hotspot",
-    "Rich in medicinal plants and endemic flora",
-    "Important migratory route for many bird species"
-  ],
-  keyLawsAndRestrictions: [
-    {
-      title: "The Wildlife Protection Act, 1972",
-      description: "Provides legal framework for protection of wildlife and establishment of protected areas across Uttarakhand.",
-      link: "https://legislative.gov.in/sites/default/files/A1972-53.pdf"
-    },
-    {
-      title: "Forest (Conservation) Act, 1980",
-      description: "Regulates deforestation and diversion of forest land for non-forest purposes, crucial in the hilly regions of Uttarakhand.",
-      link: "https://legislative.gov.in/sites/default/files/A1980-69.pdf"
-    },
-    {
-      title: "Uttarakhand Biodiversity Rules, 2015",
-      description: "State-specific rules to manage, conserve, and promote sustainable use of biodiversity.",
-      link: "https://uttarakhand.gov.in/"
-    },
-    {
-      title: "Eco-sensitive Zone Regulations",
-      description: "Protect fragile ecosystems around national parks and wildlife sanctuaries from unregulated development.",
-      link: ""
-    }
-  ],
-  conservationEfforts: [
-    "Eco-restoration projects in degraded forest areas",
-    "Snow leopard conservation under SECURE Himalaya project",
-    "Establishment of Van Panchayats for local forest management",
-    "Promotion of eco-tourism with local community participation",
-    "Creation of biosphere reserves like Nanda Devi and Valley of Flowers"
-  ],
-  locationFocus: {
-    name: "Valley of Flowers National Park",
-    coordinates: "30.7280° N, 79.6050° E"
-  }
+   const stateData = [
+
+{
+    stateName: "Andaman and Nicobar Islands",
+    uniqueBiodiversity: [
+    "Coral reefs",
+    "Mangroves",
+    "Endemic bird species like the Narcondam Hornbill and Nicobar Pigeon",
+    "Diverse marine life"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" },
+    { title: "Andaman and Nicobar Islands Forest Regulation, 1967", description: "Regulates forest management.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Establishment of marine national parks and wildlife sanctuaries",
+    "Coral reef conservation projects",
+    "Protection of nesting sites for sea turtles"
+    ],
+    locationFocus: { name: "Mahatma Gandhi Marine National Park", "coordinates": "11.5667° N, 92.5667° E" }
 },
-  {
-    stateName: 'Kerala',
-    uniqueBiodiversity: [
-      'Tropical Evergreen Forests of the Western Ghats',
-      'Endemic species like Nilgiri Tahr and Lion-tailed Macaque',
-      'Mangrove ecosystems and backwaters',
-      'Rare medicinal plants and orchids',
-      'Rich avian diversity including Malabar Grey Hornbill'
+{
+    stateName: "Andhra Pradesh",
+    "uniqueBiodiversity": [
+    "Eastern Ghats flora and fauna",
+    "Endemic plants like Red Sanders (Pterocarpus santalinus)",
+    "Diverse birdlife including Jerdon's Courser",
+    "Significant mangrove ecosystems"
     ],
     keyLawsAndRestrictions: [
-      {
-        title: 'The Kerala Forest Act, 1961',
-        description: 'Regulates forest conservation, wildlife protection, and forest produce in Kerala.',
-        link: 'https://www.keralaforest.org/'
-      },
-      {
-        title: 'The Biological Diversity Act, 2002',
-        description: 'Promotes conservation, sustainable use, and equitable benefit-sharing of biodiversity.',
-        link: 'https://nbaindia.org/'
-      },
-      {
-        title: 'The Wildlife Protection Act, 1972',
-        description: 'Protects endangered flora and fauna and creates protected areas like sanctuaries and national parks.',
-        link: 'https://moef.gov.in/en/division/environment-divisions/wildlife-and-biodiversity/'
-      }
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" },
+    { title: "Andhra Pradesh Forest Act, 1967", description: "Regulates forest management.", link: "#" }
     ],
     conservationEfforts: [
-      'Silent Valley National Park conservation success',
-      'Community-based ecotourism initiatives',
-      'Mangrove regeneration projects',
-      'Sacred groves and people’s biodiversity registers',
-      'Western Ghats conservation under UNESCO World Heritage Site'
+    "Tiger conservation in Nagarjuna Sagar-Srisailam Tiger Reserve",
+    "Protection of mangrove forests",
+    "Conservation of endemic flora"
     ],
-    locationFocus: {
-      name: 'Silent Valley National Park',
-      coordinates: '11.0644° N, 76.4700° E'
-    }
-  }
-  ,{
-  stateName: 'Arunachal Pradesh',
-  uniqueBiodiversity: [
-    'Eastern Himalayan Biodiversity Hotspot',
-    'Rare orchids (over 600 species)',
-    'Mishmi Hills home to Red Panda and Mishmi Takin',
-    'Clouded Leopard, Hornbills, and Bengal Tiger',
-    'Alpine meadows and subtropical forests'
-  ],
-  keyLawsAndRestrictions: [
-    {
-      title: 'The Arunachal Pradesh Forest Act, 1983',
-      description: 'Protects forest lands and governs forest produce in Arunachal Pradesh.',
-      link: 'https://arunachalforests.gov.in/'
-    },
-    {
-      title: 'The Wildlife Protection Act, 1972',
-      description: 'Central act applied in the state to protect endangered species and biodiversity.',
-      link: 'https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972'
-    },
-    {
-      title: 'The Biological Diversity Act, 2002',
-      description: 'Establishes the Arunachal Pradesh Biodiversity Board for biodiversity conservation.',
-      link: 'https://arunachalbiodiversityboard.in/'
-    }
-  ],
-  conservationEfforts: [
-    'Community conservation efforts in tribal areas',
-    'Establishment of Pakke and Namdapha National Parks',
-    'Hornbill Nest Adoption Program (HNAP)',
-    'Wildlife corridors to mitigate habitat fragmentation',
-    'Sustainable forest-based livelihoods'
-  ],
-  locationFocus: {
-    name: 'Namdapha National Park',
-    coordinates: '27.4911° N, 96.3841° E'
-  }
-}
-,
-  {
-    stateName: 'Maharashtra',
+    locationFocus: { name: "Nagarjuna Sagar-Srisailam Tiger Reserve", coordinates: "16.5000° N, 79.0000° E" }
+},
+{
+    stateName: "Arunachal Pradesh",
     uniqueBiodiversity: [
-      'Western Ghats evergreen forests in Sahyadris',
-      'Tadoba Andhari Tiger Reserve species like Bengal Tiger, Leopard, and Gaur',
-      'Marine biodiversity along Konkan coast',
-      'Rare reptiles like Deccan Banded Gecko',
-      'Grasslands supporting Indian Bustard'
+    "Eastern Himalayan broadleaf forests",
+    "Subalpine and alpine ecosystems",
+    "Rich diversity of orchids",
+    "Endangered species like the Red Panda and various pheasant species",
+    "Home to the Namdapha flying squirrel"
     ],
     keyLawsAndRestrictions: [
-      {
-        title: 'The Maharashtra Forest Rules, 1963',
-        description: 'Regulates the conservation and management of forests in the state.',
-        link: 'https://mahaforest.gov.in/'
-      },
-      {
-        title: 'The Wildlife Protection Act, 1972',
-        description: 'Framework for protection of wildlife and establishment of protected areas.',
-        link: 'https://moef.gov.in/'
-      },
-      {
-        title: 'The Maharashtra Biological Diversity Rules, 2008',
-        description: 'Implements the Biological Diversity Act at state level.',
-        link: 'https://mahabiodiversityboard.in/'
-      }
+    { title: "Arunachal Pradesh Forest Regulation Act, 1948", description: "Regulates forest management.", link: "#" },
+    { title: "The Arunachal Pradesh Biodiversity Board", description: "Implements the Biological Diversity Act, 2002", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable in the state for protection of wildlife.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" }
     ],
     conservationEfforts: [
-      'Tiger conservation in Tadoba and Melghat',
-      'Mangrove cell for coastal ecosystem protection',
-      'Great Indian Bustard recovery program',
-      'Urban biodiversity initiatives like Mumbai’s Aarey Forest',
-      'Eco-sensitive zones around protected areas'
+    "Establishment of Namdapha National Park and other protected areas",
+    "Community-based conservation programs",
+    "Efforts to protect endangered species"
     ],
-    locationFocus: {
-      name: 'Tadoba Andhari Tiger Reserve',
-      coordinates: '20.2408° N, 79.3792° E'
-    }
-  }
-  
-];
+    locationFocus: { name: "Namdapha National Park", coordinates: "27.3333° N, 96.5000° E" }
+},
+{
+    stateName: "Assam",
+    uniqueBiodiversity: [
+    "Brahmaputra Valley biodiversity",
+    "One-horned rhinoceros",
+    "Diverse primate species",
+    "Rich avifauna"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Assam Forest Regulation, 1891", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Rhino conservation in Kaziranga National Park",
+    "Elephant conservation",
+    "Protection of wetland ecosystems"
+    ],
+    locationFocus: { name: "Kaziranga National Park", coordinates: "26.5000° N, 93.2000° E" }
+},
+{
+    stateName: "Bihar",
+    uniqueBiodiversity: [
+    "Gangetic plains biodiversity",
+    "Various freshwater fish species",
+    "Important habitat for migratory birds",
+    "Presence of Gangetic dolphins"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Bihar Forest Act, 1981", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Efforts to conserve Gangetic dolphins",
+    "Protection of wetlands and bird sanctuaries",
+    "Afforestation programs"
+    ],
+    locationFocus: { name: "Valmiki National Park", coordinates: "27.4000° N, 84.2500° E" }
+},
+{
+    stateName: "Chandigarh",
+    uniqueBiodiversity: [
+    "Urban biodiversity",
+    "Sukhna Lake ecosystem",
+    "Variety of bird species",
+    "Flora of the Shivalik foothills"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" },
+    { title: "Chandigarh Forest Rules, 1954", description: "Regulates forest management.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Management of Sukhna Wildlife Sanctuary",
+    "Urban greening initiatives",
+    "Protection of local flora and fauna"
+    ],
+    locationFocus: { name: "Sukhna Wildlife Sanctuary", coordinates: "30.7418° N, 76.8281° E" }
+},
+{
+    stateName: "Chhattisgarh",
+    uniqueBiodiversity: [
+    "Central Indian tropical moist and dry deciduous forests",
+    "Wild buffalo",
+    "Hill myna",
+    "Rich tribal biodiversity knowledge"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Chhattisgarh Forest Act, 1968", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Protection of wild buffalo",
+    "Management of national parks and wildlife sanctuaries",
+    "Community involvement in forest management"
+    ],
+    locationFocus: { name: "Kanger Valley National Park", coordinates: "18.8333° N, 82.0000° E" }
+},
+{
+    stateName: "Dadra and Nagar Haveli and Daman and Diu",
+    uniqueBiodiversity: [
+    "Western Ghats influence",
+    "Moist deciduous forests",
+    "Coastal ecosystems",
+    "Variety of avifauna"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Indian Forest Act, 1927 (as applicable)", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Protection of forest areas",
+    "Coastal conservation efforts",
+    "Wildlife management in sanctuaries"
+    ],
+    locationFocus: { name: "Daman Ganga Wildlife Sanctuary", coordinates: "20.2833° N, 73.0167° E" }
+},
+{
+    stateName: "Delhi",
+    uniqueBiodiversity: [
+    "Ridge biodiversity",
+    "Urban forests",
+    "Variety of bird species in urban and peri-urban areas",
+    "Yamuna River biodiversity"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Delhi Forest Act, 1994", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Development and management of biodiversity parks",
+    "Afforestation efforts in the Delhi Ridge",
+    "Yamuna River conservation projects"
+    ],
+    locationFocus: { name: "Asola Bhatti Wildlife Sanctuary", coordinates: "28.4667° N, 77.2000° E" }
+},
+{
+    stateName: "Goa",
+    uniqueBiodiversity: [
+    "Western Ghats biodiversity hotspot",
+    "Endemic flora and fauna",
+    "Coastal and marine biodiversity",
+    "Rich diversity of birds"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Goa, Daman and Diu Forest Act, 1984", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Protection of Western Ghats forests",
+    "Conservation of coastal ecosystems",
+    "Wildlife sanctuaries and national parks"
+    ],
+    locationFocus: { name: "Bhagwan Mahavir Wildlife Sanctuary and Mollem National Park", coordinates: "15.3333° N, 74.2000° E" }
+},
+{
+    stateName: "Gujarat",
+    uniqueBiodiversity: [
+    "Gir Forest (Asiatic lions)",
+    "Coastal and marine biodiversity in the Gulf of Kutch",
+    "Rann of Kutch (unique desert ecosystem)",
+    "Diverse birdlife"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Gujarat Forest Act, 1927 (as applicable)", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Asiatic lion conservation project",
+    "Marine protected areas in the Gulf of Kutch",
+    "Conservation efforts in the Rann of Kutch"
+    ],
+    locationFocus: { name: "Gir National Park", coordinates: "21.1333° N, 70.8333° E" }
+},
+{
+    stateName: "Haryana",
+    uniqueBiodiversity: [
+    "Northern plains biodiversity",
+    "Wetlands and bird habitats",
+    "Relict Aravali vegetation",
+    "Diverse agricultural biodiversity"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Indian Forest Act, 1927 (as applicable)", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Management of Sultanpur National Park (bird sanctuary)",
+    "Afforestation programs",
+    "Wetland conservation"
+    ],
+    locationFocus: { name: "Sultanpur National Park", coordinates: "28.4717° N, 76.8950° E" }
+},
+{
+    stateName: "Himachal Pradesh",
+    uniqueBiodiversity: [
+    "Western Himalayan biodiversity",
+    "Temperate and alpine forests",
+    "Variety of medicinal plants",
+    "Snow leopard habitat"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Himachal Pradesh Forest Act, 1968", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Snow leopard conservation projects",
+    "Protection of high-altitude ecosystems",
+    "Conservation of medicinal plants"
+    ],
+    locationFocus: { name: "Great Himalayan National Park", coordinates: "31.7667° N, 77.5000° E" }
+},
+{
+    stateName: "Jammu and Kashmir",
+    uniqueBiodiversity: [
+    "Western Himalayan biodiversity",
+    "High-altitude wetlands",
+    "Variety of endemic flora and fauna",
+    "Habitat for the Kashmir stag (Hangul)"
+    ],
+    keyLawsAndRestrictions: [
+    { title: "Jammu and Kashmir Forest Act, 1930", description: "Regulates forest management.", link: "#" },
+    { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    ],
+    conservationEfforts: [
+    "Hangul conservation project",
+    "Protection of high-altitude wildlife",
+    "Wetland conservation"
+    ],
+    locationFocus: { name: "Dachigam National Park", coordinates: "34.1000° N, 75.0833° E" }
+},
 
-export const StateInfoSection = () => {
-  const [openIndex, setOpenIndex] = useState(null);
 
-  const toggleCard = (index) => {
-    setOpenIndex((prev) => (prev === index ? null : index));
-  };
+        //this is starting
+        {
+            stateName: "Uttarakhand",
+            uniqueBiodiversity: [
+                "Western Himalayan Subalpine Forests",
+                "Alpine Meadows",
+                "Rare medicinal plants",
+                "Endangered species like the Snow Leopard and Himalayan Monal",
+                "Diverse orchid species",
+            ],
+            keyLawsAndRestrictions: [
+                {
+                    title: "The Wildlife Protection Act, 1972",
+                    description: "Provides the framework for the protection of wild animals, birds and plants.",
+                    link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972",
+                },
+                {
+                    title: "The Forest Act, 1927",
+                    description: "Governs the conservation of forests and regulation of the transit of forest produce.",
+                    link: "https://en.wikipedia.org/wiki/Indian_Forest_Act,_1927",
+                },
+                {
+                    title: "Uttarakhand Biodiversity Board",
+                    description: "Implements the Biological Diversity Act, 2002",
+                    link: "https://ukbiodiversityboard.org/",
+                },
+            ],
+            conservationEfforts: [
+                "Establishment of National Parks and Wildlife Sanctuaries",
+                "Project Tiger and other species-specific programs",
+                "Community-based conservation initiatives",
+            ],
+            locationFocus: { name: "Reserve Forest Range Ranik", coordinates: "29.6565° N, 79.4187° E" }
+        },
+        {
+            stateName: "Kerala",
+            uniqueBiodiversity: [
+                "Tropical rainforests of the Western Ghats",
+                "Backwaters and coastal ecosystems",
+                "Diverse spice plantations",
+                "Endangered species like the Nilgiri Tahr and Lion-tailed Macaque",
+                "A variety of fish and bird species"
+            ],
+            keyLawsAndRestrictions: [
+                {
+                    title: "Kerala Forest Act, 1961",
+                    description: "Regulates forest management and conservation in Kerala.",
+                    link: "#", // Add real link
+                },
+                {
+                    title: "Kerala Conservation of Biodiversity Rules, 2004",
+                    description: "Implements the Biological Diversity Act, 2002 in Kerala.",
+                    link: "#", // Add real link
+                },
+                {
+                title: "The Kerala State Biodiversity Board",
+                description: "Works for the conservation of biological diversity",
+                link: "#"
+                }
+            ],
+            conservationEfforts: [
+                "Establishment of Wildlife Sanctuaries and National Parks (e.g., Eravikulam National Park, Periyar National Park)",
+                "Conservation of mangroves and backwaters",
+                "Sustainable tourism initiatives",
+            ],
+            locationFocus: { name: "Silent Valley National Park", coordinates: "11.0667° N, 76.4167° E" }
+        },
+        
+        
+        {
+            stateName: "Maharashtra",
+            uniqueBiodiversity: [
+                "Western Ghats biodiversity hotspot",
+                "Deccan Plateau ecosystems",
+                "Coastal and marine biodiversity",
+                "Endangered species like the tiger and Indian giant squirrel",
+                "Variety of medicinal plants"
+            ],
+            keyLawsAndRestrictions: [
+                {
+                    title: "Maharashtra Forest Act, 1927",
+                    description: "Governs forest management and conservation.",
+                    link: "#"
+                },
+                {
+                  title: "Maharashtra State Biodiversity Board",
+                  description: "Implements the Biological Diversity Act, 2002",
+                  link: "#"
+                },
+                {
+                  title: "Wildlife Protection Act, 1972",
+                  description: "Applicable for protection of wildlife.",
+                  link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972"
+                }
+            ],
+            conservationEfforts: [
+                "Establishment of Tiger Reserves (e.g., Tadoba-Andhari Tiger Reserve)",
+                "Protection of marine biodiversity",
+                "Community-based conservation initiatives",
+            ],
+            locationFocus: {name: "Western Ghats", coordinates: "16.0000° N, 75.0000° E"}
+        }
+    ];
+
+
+// import React, { useState } from 'react';
+
+const StateInfo = ({ biodiversityData }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredStates = stateData.filter(state =>
+    state.stateName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="space-y-10">
-      <div className='flex flex-col justify-center items-start my-10 text-blue-900/90 mx-13 space-y-5 animate-pulse'>
-        <h1 className='text-3xl mb-2 font-serif font-bold '>This Is A List Of Laws Specific To States:</h1>
-      </div>
-      {stateData.map((state, index) => (
-        <motion.div layout key={index}>
-          <Card
-            onClick={() => toggleCard(index)}
-            className="cursor-pointer group m-10 "
-          >
-            <CardHeader className="flex justify-between items-center">
-              <div>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Leaf className="text-green-500" />
-                  {state.stateName}
-                </CardTitle>
-                <CardDescription>
-                  {state.uniqueBiodiversity[0]}
-                </CardDescription>
-              </div>
-              <ChevronRight
-                className={`w-6 h-6 text-gray-500 group-hover:text-green-500 transform transition-transform duration-300 ${
-                  openIndex === index ? "rotate-90" : ""
-                }`}
-              />
-            </CardHeader>
-          </Card>
+    <div style={{ padding: '1rem' }}>
+      <input
+        type="text"
+        placeholder="Search state..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{
+          padding: '0.5rem',
+          marginBottom: '1rem',
+          width: '100%',
+          maxWidth: '400px',
+          fontSize: '1rem'
+        }}
+      />
 
-          <AnimatePresence initial={false}>
-            {openIndex === index && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Card className="border-t-0 rounded-t-none">
-                  <About1 {...state} />
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+      {filteredStates.map((state, index) => (
+        <div key={index} style={{ marginBottom: '2rem', borderBottom: '1px solid #ccc' }}>
+          <h2>{state.stateName}</h2>
+          <p><strong>Location Focus:</strong> {state.locationFocus.name} ({state.locationFocus.coordinates})</p>
+
+          <h4>Unique Biodiversity:</h4>
+          <ul>
+            {state.uniqueBiodiversity.map((item, i) => <li key={i}>{item}</li>)}
+          </ul>
+
+          <h4>Key Laws & Restrictions:</h4>
+          <ul>
+            {state.keyLawsAndRestrictions.map((law, i) => (
+              <li key={i}>
+                <strong>{law.title}</strong>: {law.description} – <a href={law.link} target="_blank" rel="noreferrer">Learn more</a>
+              </li>
+            ))}
+          </ul>
+
+          <h4>Conservation Efforts:</h4>
+          <ul>
+            {state.conservationEfforts.map((effort, i) => <li key={i}>{effort}</li>)}
+          </ul>
+        </div>
       ))}
     </div>
   );
@@ -379,4 +607,82 @@ export const StateInfoSection = () => {
 
 
 
+export const StateInfoSection = () => {
+  const [openIndex, setOpenIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const toggleCard = (index) => {
+    setOpenIndex((prev) => (prev === index ? null : index));
+  };
+
+  // Filter the states based on search input
+  const filteredStates = stateData.filter((state) =>
+    state.stateName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-10">
+      <div className="flex flex-col justify-center items-start my-10 text-blue-900/90 mx-13 space-y-5 ">
+        <div className="flex justify-between items-center w-full px-6">
+          <h1 className=" animate-pulse text-3xl mb-2 font-serif font-bold">
+            This Is A List Of Laws Specific To States:
+          </h1>
+      
+        <input
+          type="text"
+          placeholder="Search state..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="outline-none outline-1 mb-7 hover:bg-blue-100 hover:tracking-widest duration-300 border-gray-300 rounded-md px-4 py-2 w-full max-w-md mt-4"
+        />
+        </div>
+      </div>
+
+      {filteredStates.length === 0 ? (
+        <p className="text-center text-gray-500">No states found.</p>
+      ) : (
+        filteredStates.map((state, index) => (
+          <motion.div layout key={index}>
+            <Card
+              onClick={() => toggleCard(index)}
+              className="cursor-pointer group m-10"
+            >
+              <CardHeader className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Leaf className="text-green-500" />
+                    {state.stateName}
+                  </CardTitle>
+                  <CardDescription>
+                    {state.uniqueBiodiversity[0]}
+                  </CardDescription>
+                </div>
+                <ChevronRight
+                  className={`w-6 h-6 text-gray-500 group-hover:text-green-500 transform transition-transform duration-300 ${
+                    openIndex === index ? "rotate-90" : ""
+                  }`}
+                />
+              </CardHeader>
+            </Card>
+
+            <AnimatePresence initial={false}>
+              {openIndex === index && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Card className="border-t-0 rounded-t-none">
+                    <About1 {...state} />
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))
+      )}
+    </div>
+  );
+};
 

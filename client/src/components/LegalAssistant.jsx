@@ -676,39 +676,39 @@ const handleDownload = () => {
   return (
     <>
       
-      <div className="flex gap-4 justify-center pb-12 items-center mt-12">
+      <div className="flex gap-4 justify-evenly pb-12 items-center mt-12">
         {cardData.map((item, index) => {
           const { head, g, h1, h2, h3, i1, i2, i3 } = item;
           return (
             <div
               key={index}
-              className="min-w-[22vw] bg-white shadow-2xl min-h-[55vh] border-t-4 rounded-[8px] border-[#800020]"
+              className="min-w-[22vw] bg-white shadow-sm hover:shadow-xl transition-all duration-300 min-h-[52vh] border-t-4 rounded-[8px] border-[#800020]"
             >
-              <div className="flex flex-col justify-center items-center">
-                <div className="flex gap-5 max-w-[20vw] justify-center mt-4 items-center">
+              <div className="flex flex-col justify-center items-start p-5">
+                <div className="flex gap-x-3 max-w-[20vw] justify-start mt-4 items-center">
                   <img
                     src={g}
                     alt="category-icon"
-                    className="h-[48px] w-[50px]"
+                    className="h-[45px] w-[45px]"
                   />
                   <h1 className="font-bold text-[20px] leading-[20px] text-[#0A2342]">
                     {head}
                   </h1>
                 </div>
-                <div className="mt-8 flex flex-col gap-8 justify-center min-w-[16vw] max-w-[18vw] items-start">
-                  <div className="flex gap-4 items-center mt-2">
+                <div className="mt-8 mx-3 flex flex-col gap-y-2  justify-center min-w-[16vw] max-w-[18vw] items-start">
+                  <div className="flex gap-2 items-center justify-center mt-3">
                     <img src={i1} alt="icon" className="w-[18px] h-[18px]" />
                     <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">
                       {h1}
                     </h1>
                   </div>
-                  <div className="flex gap-4 items-center mt-6">
+                  <div className="flex gap-2 justify-center items-center mt-6">
                     <img src={i2} alt="icon" className="w-[18px] h-[18px]" />
                     <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">
                       {h2}
                     </h1>
                   </div>
-                  <div className="flex gap-4 items-center mt-6">
+                  <div className="flex gap-2 justify-center items-center mt-6">
                     <img src={i3} alt="icon" className="w-[18px] h-[18px]" />
                     <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">
                       {h3}
@@ -720,7 +720,7 @@ const handleDownload = () => {
           );
         })}
       </div>
-      <div className="p-6 max-w-[800px] mx-auto">
+      <div className="p-6 max-w-[800px] mx-auto flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-4">Create Legal Document</h1>
         <Form method="post" onSubmit={handleGenerate} className="space-y-4">
           <select
@@ -977,19 +977,20 @@ const handleDownload = () => {
               />
             </>
           )}
-
+          <div className="flex justify-center items-center">
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
             Generate
           </button>
+          </div>
         </Form>
 
         {data && (
   <div className="mt-8 p-6  rounded border border-gray-400 shadow-2xl">
     <h2 className="text-xl font-bold mb-2">Preview</h2>
-    <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: basicMarkdownToHtml(data) }} />
+    <div className="whitespace-pre-wrap flex justify-center items-center" dangerouslySetInnerHTML={{ __html: basicMarkdownToHtml(data) }} />
     <button
       onClick={handleDownload}
       className="bg-green-600 text-white px-4 py-2 rounded mt-4"
