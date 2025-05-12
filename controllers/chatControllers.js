@@ -202,14 +202,14 @@ export const getHistory = asyncHandler(async (req, res) => {
   
   // 1. Enhanced cookie logging
   // console.log('Raw cookie:', req.cookies?.sessionId);
-  // console.log('Signed cookie:', req.signedCookies?.sessionId);
+  console.log('Signed cookie:', req.signedCookies?.sessionId);
   const cookieSessionId = (req.signedCookies.sessionId || req.cookies.sessionId || "").toString().trim();
   // console.log('Normalized cookie ID:', `"${cookieSessionId}"`);
 
   // 2. Verify user exists with sessions
   const user = await User.findById(id).select('chatSession');
   if (!user) {
-    console.error(`User ${id} not found`);
+    // console.error(`User ${id} not found`);
     return res.status(404).json({ 
       success: false,
       message: "User not found",
@@ -219,7 +219,7 @@ export const getHistory = asyncHandler(async (req, res) => {
 
   // 3. Deep inspection of stored sessions
   const allSessions = user.chatSession || [];
-  console.log(`Found ${allSessions.length} sessions:`);
+  // console.log(`Found ${allSessions.length} sessions:`);
   allSessions.forEach((s, i) => {
     const storedId = s.sessionId?.toString().trim();
     console.log(`Session ${i}:`, {
@@ -861,4 +861,37 @@ export const deleteSession = asyncHandler(async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+});
+export const newSessionId = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) return res.status(400).json({ msg: "User does not exist." });
+
+  // 1. Clear old cookie (unsigned)
+  res.clearCookie("sessionId", {
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "Lax",
+  });
+
+  // 2. Generate new JWT
+  const token = jwt.sign(
+    { userId: user._id, name: user.name },
+    "secret", // Use process.env.JWT_SECRET in production
+    { expiresIn: "1d" }
+  );
+
+  // 3. Set new unsigned cookie
+  res.cookie("sessionId", token, {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "Lax",
+  });
+
+  res.status(200).json({
+    msg: "New session ID created",
+    token, // Raw JWT (matches cookie)
+  });
 });

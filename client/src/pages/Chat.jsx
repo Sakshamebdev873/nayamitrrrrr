@@ -366,6 +366,24 @@ const Chat = () => {
     }
   };
 
+  const handleNewChat = async () => {
+  try {
+    // 1. Clear current messages immediately
+    setMessages([]);
+    
+    // 2. Call API to create new session
+    await customFetch.get(`/new/${id}`);
+    
+    // 3. Optionally refetch current session data
+    const { data } = await customFetch.get(`/history/${id}`);
+    setMessages(data?.currentSession?.messages || []);
+    
+    toast.success("New chat session created");
+  } catch (error) {
+    console.log(error);
+    toast.error("Failed to create new session");
+  }
+};
   return (
   <div className="flex h-screen overflow-hidden">
   {/* Sidebar */}
@@ -373,6 +391,7 @@ const Chat = () => {
     <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
       <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
       <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
+      <button type="button" onClick={handleNewChat} className="bg-black p-4" >x</button>
     </div>
     <div className="flex flex-col flex-1 overflow-y-auto">
       {Sidebardata.map((item, index) => {
@@ -418,6 +437,7 @@ const Chat = () => {
         <h1 className="text-white text-[20px] font-normal ml-4">
           Legal Assistant
         </h1>
+        
       </div>
       <button
         type="button"
