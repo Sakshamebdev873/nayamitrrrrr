@@ -26,6 +26,8 @@ import Survey from "./components/Survey.jsx";
 import History from "./pages/History.jsx";
 import CaseHelper from "./pages/CaseHelper.jsx";
 import { action as caseAction } from "./pages/CaseHelper.jsx";
+import CaseHistory from "./pages/caseHistory.jsx";
+import {loader as loaderHistory} from './pages/caseHistory.jsx'
 // import { Auth0Provider } from '@auth0/auth0-react'
 // import { Contact } from './components/Contact.jsx'
 function App() {
@@ -86,6 +88,10 @@ function App() {
           path: "history/:id",
           element: <History />,
           loader: historyLoader,
+        },{
+          path : 'caseHistory/:id',
+          element : <CaseHistory/>,
+          loader : loaderHistory,
         },
         {
           path: "caseHelper/:id",

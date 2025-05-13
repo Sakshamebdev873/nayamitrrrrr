@@ -248,9 +248,9 @@ export const getHistory = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     currentSession: currentSession || null,
-    otherSessions: allSessions.filter(s => 
-      s.sessionId?.toString().trim() !== cookieSessionId
-    ),
+   otherSessions: allSessions
+  .filter(s => s.sessionId?.toString().trim() !== cookieSessionId)
+  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
     _debug: {
       cookieReceived: cookieSessionId,
       matchedSessionId: currentSession?.sessionId,
