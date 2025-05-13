@@ -318,7 +318,7 @@ const Chat = () => {
     },
     {
       img: "/docu.png",
-      text: "Document Analyser",
+      text: "Document Simplifier",
       path: "/analyst",
     },
     {
@@ -328,17 +328,17 @@ const Chat = () => {
     },
     {
       img: "/docu.png",
-      text: "Generate Documents",
+      text: "Draft FIR/RTI",
       path: "/legalAssistance",
     },
     {
       img: "/w2.png",
-      text: "Cyber Information",
+      text: "Cyber Section",
       path: "/cybersection",
     },
     {
       img: "/history (1).png",
-      text: "History",
+      text: "Recent Chats",
       path: `/history/${id}`,
     },
     {
