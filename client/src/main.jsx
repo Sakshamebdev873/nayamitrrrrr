@@ -7,8 +7,8 @@ import { Toaster } from 'sonner';
 
 createRoot(document.getElementById('root')).render(
 
- <>
-     <Toaster richColors position="top-center" />
+<>
+    <Toaster richColors position="top-center" />
     <App />
 </>
 
