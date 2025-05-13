@@ -169,29 +169,30 @@ export function Navbar() {
         )}
 
         {/* Login/Sign Up (Only on home route) */}
-        {pathname === "/" || pathname ==='/Survey' && (
-          <>
-            {user && (
-              <img
-                src="https://plus.unsplash.com/premium_vector-1719858611039-66c134efa74d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8fDA%3D"
-                alt={`Profile of ${user}`}
-                className="w-7 h-7 rounded-full hover:scale-110 transition-transform duration-200 cursor-pointer"
-              />
-            )}
-            <Link
-              to="/signup"
-              className="p-2 px-3 bg-blue-600 font-light rounded-xl hover:bg-blue-400 duration-500 hover:scale-105 transition text-white"
-            >
-              Sign Up
-            </Link>
-            <Link
-              to="/login"
-              className="p-2 px-3 bg-blue-600 font-light rounded-xl hover:bg-blue-400 duration-500 hover:scale-105 transition text-white"
-            >
-              Log In
-            </Link>
-          </>
-        )}
+        {(pathname === "/" || pathname === "/Survey") && (
+  <>
+    {user && (
+      <img
+        src="https://plus.unsplash.com/premium_vector-1719858611039-66c134efa74d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8fDA%3D"
+        alt={`Profile of ${user}`}
+        className="w-7 h-7 rounded-full hover:scale-110 transition-transform duration-200 cursor-pointer"
+      />
+    )}
+    <Link
+      to="/signup"
+      className="p-2 px-3 bg-blue-600 font-light rounded-xl hover:bg-blue-400 duration-500 hover:scale-105 transition text-white"
+    >
+      Sign Up
+    </Link>
+    <Link
+      to="/login"
+      className="p-2 px-3 bg-blue-600 font-light rounded-xl hover:bg-blue-400 duration-500 hover:scale-105 transition text-white"
+    >
+      Log In
+    </Link>
+  </>
+)}
+
       </div>
     </div>
   )}

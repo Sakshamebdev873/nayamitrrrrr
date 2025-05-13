@@ -322,7 +322,7 @@ const Chat = () => {
       path: "/analyst",
     },
     {
-      img: "/docu.png",
+      img: "/brain2.png",
       text: "Roots",
       path: "/root",
     },
@@ -340,11 +340,6 @@ const Chat = () => {
       img: "/history (1).png",
       text: "History",
       path: `/history/${id}`,
-    },
-    {
-      img: "/heart.png",
-      text: "Safety hub",
-      path: "/safetyhub",
     },
     {
       img: "/laws.png",
@@ -410,8 +405,8 @@ const Chat = () => {
     <div className="flex flex-col flex-1 overflow-y-auto text-white">
       {Sidebardata.map((item, index) => {
         const { img, text, path } = item;
-        const isResourceHeader = index === 5;
-const isCase = index === 9;
+        const isResourceHeader = index === 6;
+const isCase = index === 8;
         return (
           <div key={index}>
             {isResourceHeader && (
