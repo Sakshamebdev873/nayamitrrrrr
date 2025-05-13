@@ -19,7 +19,7 @@ const resources = [
     name: 'Email Header Analyzer',
     description:
       'Detect phishing and spoofing attempts by examining the email routing path and authentication results.',
-    link: 'https://tools.email-checker.net/email-header-analyzer',
+    link: 'https://mxtoolbox.com/EmailHeaders.aspx',
     tutorial:
       'Copy the email header and paste it into the tool. Analyze the "Received" lines and look for SPF/DKIM alignment to verify sender legitimacy.',
     tip: 'Use this tool before clicking suspicious links in emails.',
@@ -34,12 +34,12 @@ const resources = [
     tip: 'Always scan downloads from unknown sources.',
   },
   {
-    name: 'Cybersecurity Awareness Quiz',
+    name: 'Offensive & defensive cyber security training',
     description:
-      'Assess your knowledge on secure practices using fun, scenario-based questions.',
-    link: 'https://www.cybersecurityquiz.org/',
+      'Access over 900 training labs and learning pathways suited to all levels, from the complete beginner to the seasoned hacker.',
+    link: 'https://tryhackme.com/',
     tutorial:
-      'Answer questions based on common cyberattack scenarios. Each correct answer gives tips to enhance your safety.',
+      'Learning cyber security on TryHackMe is fun and addictive. Earn points by answering questions, taking on challenges and maintaining your hacking streak through short lessons.',
     tip: 'Retake monthly to stay updated with evolving threats.',
   },
   {

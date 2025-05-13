@@ -323,6 +323,11 @@ const Chat = () => {
     },
     {
       img: "/docu.png",
+      text: "Roots",
+      path: "/root",
+    },
+    {
+      img: "/docu.png",
       text: "Generate Documents",
       path: "/legalAssistance",
     },
@@ -521,7 +526,6 @@ const isCase = index === 9;
             recognizing ? "bg-gray-100 font-extrabold " : "bg-gray-100"
           } border-gray-300`}
           title="Click to speak"
-          
         >
           <FaMicrophone />
         </button>

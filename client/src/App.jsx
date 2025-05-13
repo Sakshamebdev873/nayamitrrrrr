@@ -4,6 +4,7 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import { Layout } from "./components/Layout.jsx";
+import {Constitution} from './components/Constitution.jsx'
 import { Home } from "./components/Home.jsx";
 // import { About } from './components/About.jsx'
 import { StateInfoSection } from "./components/About.jsx";
@@ -44,6 +45,10 @@ function App() {
         {
           path: "lawforstate",
           element: <StateInfoSection />,
+        },
+        {
+          path: "root",
+          element: <Constitution />,
         },
         {
           path: "cybersection",

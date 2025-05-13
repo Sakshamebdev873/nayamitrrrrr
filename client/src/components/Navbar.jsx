@@ -61,7 +61,7 @@ const Profile = ({ click, useClick, user }) => {
             </div>
           </motion.div>
         </>
-        {/* )} */}
+
       </AnimatePresence>
     </>
   );
@@ -101,7 +101,7 @@ export function Navbar() {
 
   return (
     <>
-  {/* Top Time Bar */}
+  
   <div className="flex justify-between items-center w-full h-5 bg-black/80 font-light text-sm">
     <div className="flex gap-1">
       <div className="px-5 text-white">{date}</div>
@@ -159,18 +159,17 @@ export function Navbar() {
       {/* Right Side */}
       <div className="flex items-center gap-5">
         {/* Go Back (Not on home page) */}
-        {pathname !== "/" && (
+        {pathname !== "/" && pathname !== "/Survey" && (
           <button
             onClick={handleback}
             type="button"
-            className="px-4 py-2 bg-red-600 shadow-2xl cursor-pointer text-white rounded-[8px] border-none hover:scale-102 hover:bg-red-400 transition-all transform-color duration-300"
-          >
+            className="px-4 py-2 bg-red-600 shadow-2xl cursor-pointer text-white rounded-[8px] border-none hover:scale-102 hover:bg-red-400 transition-all transform-color duration-300">
             Go Back
           </button>
         )}
 
         {/* Login/Sign Up (Only on home route) */}
-        {pathname === "/" && (
+        {pathname === "/" || pathname ==='/Survey' && (
           <>
             {user && (
               <img
@@ -181,13 +180,13 @@ export function Navbar() {
             )}
             <Link
               to="/signup"
-              className="p-2 px-3 bg-red-600 font-light rounded-xl hover:bg-red-400 duration-500 hover:scale-105 transition text-white"
+              className="p-2 px-3 bg-blue-600 font-light rounded-xl hover:bg-blue-400 duration-500 hover:scale-105 transition text-white"
             >
               Sign Up
             </Link>
             <Link
               to="/login"
-              className="p-2 px-3 bg-red-600 font-light rounded-xl hover:bg-red-400 duration-500 hover:scale-105 transition text-white"
+              className="p-2 px-3 bg-blue-600 font-light rounded-xl hover:bg-blue-400 duration-500 hover:scale-105 transition text-white"
             >
               Log In
             </Link>
@@ -197,6 +196,5 @@ export function Navbar() {
     </div>
   )}
 </>
-
   );
 }
