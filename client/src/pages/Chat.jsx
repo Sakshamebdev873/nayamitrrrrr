@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import {
   Form,
@@ -10,10 +9,11 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { FaMicrophone } from "react-icons/fa";
+import { Mic, MicOff } from "lucide-react";
 import { LuMessageCirclePlus } from "react-icons/lu";
 import customFetch from "../utils/customFetch";
 import { toast } from "sonner";
+
 export const action = async ({ request, params }) => {
   const { id } = params;
   const formdata = await request.formData();
@@ -32,8 +32,6 @@ export const loader = async ({ params }) => {
   try {
     const { id } = params;
     const { data } = await customFetch.get(`/history/${id}`);
-    // console.log(data);
-    
     return {
       currentSession: data?.currentSession || null,
     };
@@ -43,7 +41,6 @@ export const loader = async ({ params }) => {
   }
 };
 
-// Basic custom markdown parser for basic formatting
 const renderMarkdown = (text) => {
   const lines = text.split("\n");
   const elements = [];
@@ -183,64 +180,22 @@ const Chat = () => {
   const submit = useSubmit();
   const formRef = useRef();
   const inputRef = useRef();
-  const {id} = useParams()
+  const { id } = useParams();
   const messagesEndRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState(currentSession?.messages || []);
-  const [recognizing, setRecognizing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setMessages(currentSession?.messages || []);
   }, [currentSession]);
 
-
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // Voice recognition logic
-  const [inputText, setInputText] = useState("");
-  const recognitionRef = useRef(null);
-  const navigate = useNavigate();
-  
-  const handleVoiceInput = () => {
-    if (
-      !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
-    ) {
-      alert("Speech recognition is not supported in this browser.");
-      return;
-    }
-
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-
-    recognitionRef.current = recognition;
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
-
-    recognition.onstart = () => {
-      setRecognizing(true);
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInputText(transcript); // ✅ sets input field
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      alert("Speech recognition error: " + event.error);
-      setRecognizing(false);
-    };
-
-    recognition.onend = () => {
-      setRecognizing(false);
-    };
-    recognition.start();
-  };
   const startVoiceRecognition = () => {
     if (!("webkitSpeechRecognition" in window)) {
       alert("Speech Recognition not supported in this browser.");
@@ -248,31 +203,65 @@ const Chat = () => {
     }
 
     const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+
+    recognitionRef.current = recognition;
 
     recognition.onstart = () => {
-      setRecognizing(true);
+      setIsRecording(true);
     };
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      if (transcript && inputRef.current) {
-        inputRef.current.value = transcript;
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      if (inputRef.current) {
+        inputRef.current.value = finalTranscript + interimTranscript;
       }
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
-      alert("Speech recognition error: " + event.error);
+      if (event.error !== 'no-speech') {
+        alert("Speech recognition error: " + event.error);
+      }
+      stopVoiceRecognition();
     };
 
     recognition.onend = () => {
-      setRecognizing(false);
+      if (isRecording) {
+        recognition.start();
+      }
     };
 
     recognition.start();
+  };
+
+  const stopVoiceRecognition = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsRecording(false);
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopVoiceRecognition();
+    } else {
+      startVoiceRecognition();
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -299,8 +288,6 @@ const Chat = () => {
         response: res.data.response,
       };
       setMessages((prev) => [...prev, responseMessage]);
-      formRef.current.reset();
-      inputRef.current.value = "";
     } catch (err) {
       console.log(err);
     } finally {
@@ -310,7 +297,6 @@ const Chat = () => {
   };
 
   const Sidebardata = [
-  
     {
       img: "/assist.png",
       text: "Legal Assistant",
@@ -346,7 +332,6 @@ const Chat = () => {
       text: "State Wise Laws",
       path: "/lawforstate",
     },
-  
     {
       img: "/w1.png",
       text: "Survey",
@@ -356,15 +341,16 @@ const Chat = () => {
       img: "/n1.png",
       text: "Case Analysis",
       path: "/dashboard",
-    },{
+    },
+    {
       img: '/case2.png',
-      text : "Case Helper",
-      path : `/caseHelper/${id}`
+      text: "Case Helper",
+      path: `/caseHelper/${id}`
     },
     {
       img: '/history (1).png',
-      text : "Case History",
-      path : `/caseHistory/${id}`
+      text: "Case History",
+      path: `/caseHistory/${id}`
     }
   ];
 
@@ -379,179 +365,175 @@ const Chat = () => {
   };
 
   const handleNewChat = async () => {
-  try {
-    // 1. Clear current messages immediately
-    setMessages([]);
-    
-    // 2. Call API to create new session
-    await customFetch.get(`/new/${id}`);
-    
-    // 3. Optionally refetch current session data
-    const { data } = await customFetch.get(`/history/${id}`);
-    setMessages(data?.currentSession?.messages || []);
-    
-    toast.success("New chat session created");
-  } catch (error) {
-    console.log(error);
-    toast.error("Failed to create new session");
-  }
-};
+    try {
+      setMessages([]);
+      await customFetch.get(`/new/${id}`);
+      const { data } = await customFetch.get(`/history/${id}`);
+      setMessages(data?.currentSession?.messages || []);
+      toast.success("New chat session created");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to create new session");
+    }
+  };
+
   return (
-  <div className="flex h-screen overflow-hidden ">
-  {/* Sidebar */}
-  <div className="w-[20vw] h-full bg-[#3c32b5] flex-shrink-0 flex flex-col">
-    <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
-      <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
-      <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
-
-      <button type="button" onClick={handleNewChat} label='new chat' title="New Chat" className=" bg-[#3c32b5] text-yellow-300 ml-3 hover:scale-105 transition-all duration-300 p-1 text-2xl" >
-      <LuMessageCirclePlus className=""/></button>
-    </div>
-    <div className="flex flex-col flex-1 overflow-y-auto text-white">
-      {Sidebardata.map((item, index) => {
-        const { img, text, path } = item;
-        const isResourceHeader = index === 6;
-const isCase = index === 8;
-        return (
-          <div key={index}>
-            {isResourceHeader && (
-              <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
-                Resources
-              </h1>
-            )}
-            {isCase && (
-              <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
-                Case
-              </h1>
-            )}
-            <NavLink
-              to={path}
-              className={() =>
-                `flex gap-4 py-3.5 px-6 ${
-                  index === 0 
-                    ? "text-yellow-400 bg-white/10  mt-2 rounded-lg"
-                    : "text-white mt-2 "
-                }`
-              }
-            >
-              <img src={img} alt={text} className="w-[18px] h-[16px] text-white/100"/>
-              <p className="font-normal text-[14px] leading-[14px]">
-                {text}
-              </p>
-            </NavLink>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-
-  {/* Chat Panel */}
-  <div className="flex flex-col flex-1 h-full">
-    {/* Header */}
-    <div className="flex justify-between items-center h-[77px] bg-[#4338CA] px-4">
-      <div className="flex items-center">
-        <div className="w-[55px] h-[45px] rounded-2xl flex justify-center items-center bg-white">
-          <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px] text-white" />
-        </div>
-        <h1 className="text-white text-[20px] font-normal ml-4">
-          Legal Assistant
-        </h1>
-        
-      </div>
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="px-4 py-2 bg-red-600 cursor-pointer hover:scale-105 transition-all duration-500 hover:bg-red-400 text-white rounded-[8px] shadow-2xl"
-      >
-        Logout
-      </button>
-    </div>
-
-    {/* Chat content area */}
-    <div className="flex-1 overflow-y-auto p-6 bg-gray-100 space-y-4">
-      {messages && messages.length > 0 ? (
-        messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`max-w-[75%] p-4 rounded-lg shadow whitespace-pre-wrap ${
-              msg.role === "user"
-                ? "bg-white self-end ml-auto border border-gray-300"
-                : "bg-[#E0E7FF] self-start mr-auto"
-            }`}
+    <div className="flex h-screen overflow-hidden ">
+      {/* Sidebar */}
+      <div className="w-[20vw] h-full bg-[#3c32b5] flex-shrink-0 flex flex-col">
+        <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
+          <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
+          <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
+          <button 
+            type="button" 
+            onClick={handleNewChat} 
+            className="bg-[#3c32b5] text-yellow-300 ml-3 hover:scale-105 transition-all duration-300 p-1 text-2xl"
           >
-            {msg.role === "user" ? (
-              <p className="text-sm">{msg.prompt}</p>
-            ) : (
-              <div>{renderMarkdown(msg.response)}</div>
-            )}
-          </div>
-        ))
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-          <div className="text-5xl mb-4">⚖️</div>
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            How can I help you with laws today?
-          </h2>
-          <p className="text-sm text-gray-500 max-w-md">
-            Ask about <span className="font-medium text-blue-500">RTI drafting</span>,
-            <span className="font-medium text-green-500"> FIR generation</span>, or
-            <span className="font-medium text-purple-500"> legal advice</span>.
-          </p>
+            <LuMessageCirclePlus />
+          </button>
         </div>
-      )}
-{navigation.state === "submitting" && (
-  <div className="flex items-center gap-2 mt-10 text-center">
-    <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse" />
-    <p className="text-sm text-gray-500">Thinking...</p>
-  </div>
-)}
+        <div className="flex flex-col flex-1 overflow-y-auto text-white">
+          {Sidebardata.map((item, index) => {
+            const { img, text, path } = item;
+            const isResourceHeader = index === 6;
+            const isCase = index === 8;
+            return (
+              <div key={index}>
+                {isResourceHeader && (
+                  <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
+                    Resources
+                  </h1>
+                )}
+                {isCase && (
+                  <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
+                    Case
+                  </h1>
+                )}
+                <NavLink
+                  to={path}
+                  className={() =>
+                    `flex gap-4 py-3.5 px-6 ${
+                      index === 0 
+                        ? "text-yellow-400 bg-white/10 mt-2 rounded-lg"
+                        : "text-white mt-2"
+                    }`
+                  }
+                >
+                  <img src={img} alt={text} className="w-[18px] h-[16px] text-white/100"/>
+                  <p className="font-normal text-[14px] leading-[14px]">
+                    {text}
+                  </p>
+                </NavLink>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
+      {/* Chat Panel */}
+      <div className="flex flex-col flex-1 h-full">
+        {/* Header */}
+        <div className="flex justify-between items-center h-[77px] bg-[#4338CA] px-4">
+          <div className="flex items-center">
+            <div className="w-[55px] h-[45px] rounded-2xl flex justify-center items-center bg-white">
+              <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px] text-white" />
+            </div>
+            <h1 className="text-white text-[20px] font-normal ml-4">
+              Legal Assistant
+            </h1>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 cursor-pointer hover:scale-105 transition-all duration-500 hover:bg-red-400 text-white rounded-[8px] shadow-2xl"
+          >
+            Logout
+          </button>
+        </div>
 
-      <div ref={messagesEndRef} />
+        {/* Chat content area */}
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-100 space-y-4">
+          {messages && messages.length > 0 ? (
+            messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`max-w-[75%] p-4 rounded-lg shadow whitespace-pre-wrap ${
+                  msg.role === "user"
+                    ? "bg-white self-end ml-auto border border-gray-300"
+                    : "bg-[#E0E7FF] self-start mr-auto"
+                }`}
+              >
+                {msg.role === "user" ? (
+                  <p className="text-sm">{msg.prompt}</p>
+                ) : (
+                  <div>{renderMarkdown(msg.response)}</div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
+              <div className="text-5xl mb-4">⚖️</div>
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                How can I help you with laws today?
+              </h2>
+              <p className="text-sm text-gray-500 max-w-md">
+                Ask about <span className="font-medium text-blue-500">RTI drafting</span>,
+                <span className="font-medium text-green-500"> FIR generation</span>, or
+                <span className="font-medium text-purple-500"> legal advice</span>.
+              </p>
+            </div>
+          )}
+          {navigation.state === "submitting" && (
+            <div className="flex items-center gap-2 mt-10 text-center">
+              <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse" />
+              <p className="text-sm text-gray-500">Thinking...</p>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Chat input bar */}
+        <div className="p-4 bg-white border-t border-gray-200">
+          <form
+            ref={formRef}
+            method="post"
+            className="flex gap-4 max-w-4xl mx-auto"
+            onSubmit={handleSubmit}
+          >
+            <button
+              type="button"
+              onClick={toggleRecording}
+              className={`px-3 rounded-md cursor-pointer border ${
+                isRecording ? "bg-red-100 text-red-600" : "bg-gray-100"
+              } border-gray-300 flex items-center justify-center`}
+              title={isRecording ? "Click to stop" : "Click to speak"}
+            >
+              {isRecording ? (
+                <MicOff className="w-5 h-5" />
+              ) : (
+                <Mic className="w-5 h-5" />
+              )}
+            </button>
+            <input
+              type="text"
+              name="prompt"
+              ref={inputRef}
+              placeholder={
+                navigation.state === "submitting" ? "Please wait..." : "Ask anything..."
+              }
+              className="flex-1 px-4 h-[40px] border border-[#E5E7EB] shadow rounded-[8px] outline-none"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[40px] hover:scale-104 transition-all duration-500 rounded-[8px]"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
-
-    {/* Chat input bar */}
-    <div className="p-4 bg-white border-t border-gray-200">
-      <form
-        ref={formRef}
-        method="post"
-        className="flex gap-4 max-w-4xl mx-auto"
-        onSubmit={handleSubmit}
-      >
-        {/* Voice input button */}
-        <button
-          type="button"
-          onClick={startVoiceRecognition}
-          className={`px-3 rounded-md cursor-pointer border ${
-            recognizing ? "bg-gray-100 font-extrabold " : "bg-gray-100"
-          } border-gray-300`}
-          title="Click to speak"
-        >
-          <FaMicrophone />
-        </button>
-
-        <input
-          type="text"
-          name="prompt"
-          ref={inputRef}
-          placeholder={
-            navigation.state === "submitting" ? "Please wait..." : "Ask anything..."
-          }
-          className="flex-1 px-4 h-[40px] border border-[#E5E7EB] shadow rounded-[8px] outline-none"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[40px] hover:scale-104 transition-all duration-500 rounded-[8px]"
-        >
-          Send
-        </button>
-      </form>
-    </div>
-  </div>
-</div>
-
   );
 };
 
