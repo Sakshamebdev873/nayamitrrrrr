@@ -163,7 +163,7 @@ export function Navbar() {
           <button
             onClick={handleback}
             type="button"
-            className="px-4 py-2 bg-red-400 shadow-2xl cursor-pointer text-white rounded-[8px] border-none hover:scale-102 hover:bg-red-600 transition-all transform-color duration-300"
+            className="px-4 py-2 bg-red-600 shadow-2xl cursor-pointer text-white rounded-[8px] border-none hover:scale-102 hover:bg-red-400 transition-all transform-color duration-300"
           >
             Go Back
           </button>
@@ -181,13 +181,13 @@ export function Navbar() {
             )}
             <Link
               to="/signup"
-              className="p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white"
+              className="p-2 px-3 bg-red-600 font-light rounded-xl hover:bg-red-400 duration-500 hover:scale-105 transition text-white"
             >
               Sign Up
             </Link>
             <Link
               to="/login"
-              className="p-2 px-3 bg-blue-400 font-light rounded-xl hover:bg-blue-500 hover:scale-105 transition text-white"
+              className="p-2 px-3 bg-red-600 font-light rounded-xl hover:bg-red-400 duration-500 hover:scale-105 transition text-white"
             >
               Log In
             </Link>

@@ -9,6 +9,8 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import { FaMicrophone } from "react-icons/fa";
+import { LuMessageCirclePlus } from "react-icons/lu";
 import customFetch from "../utils/customFetch";
 import { toast } from "sonner";
 export const action = async ({ request, params }) => {
@@ -236,7 +238,6 @@ const Chat = () => {
     recognition.onend = () => {
       setRecognizing(false);
     };
-
     recognition.start();
   };
   const startVoiceRecognition = () => {
@@ -308,7 +309,7 @@ const Chat = () => {
   };
 
   const Sidebardata = [
-   
+  
     {
       img: "/assist.png",
       text: "Legal Assistant",
@@ -324,13 +325,13 @@ const Chat = () => {
       text: "Generate Documents",
       path: "/legalAssistance",
     },
-     {
+    {
       img: "/w2.png",
       text: "Cyber Information",
       path: "/cybersection",
     },
     {
-      img: "/w2.png",
+      img: "/history (1).png",
       text: "History",
       path: `/history/${id}`,
     },
@@ -344,7 +345,7 @@ const Chat = () => {
       text: "State Wise Laws",
       path: "/lawforstate",
     },
-   
+  
     {
       img: "/w1.png",
       text: "Survey",
@@ -390,15 +391,17 @@ const Chat = () => {
   }
 };
   return (
-  <div className="flex h-screen overflow-hidden">
+  <div className="flex h-screen overflow-hidden ">
   {/* Sidebar */}
   <div className="w-[20vw] h-full bg-[#3c32b5] flex-shrink-0 flex flex-col">
     <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
       <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
       <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
-      <button type="button" onClick={handleNewChat} className="bg-black p-4" >x</button>
+
+      <button type="button" onClick={handleNewChat} label='new chat' title="New Chat" className=" bg-[#3c32b5] text-yellow-300 ml-3 hover:scale-105 transition-all duration-300 p-1 text-2xl" >
+      <LuMessageCirclePlus className=""/></button>
     </div>
-    <div className="flex flex-col flex-1 overflow-y-auto">
+    <div className="flex flex-col flex-1 overflow-y-auto text-white">
       {Sidebardata.map((item, index) => {
         const { img, text, path } = item;
         const isResourceHeader = index === 5;
@@ -425,7 +428,7 @@ const isCase = index === 9;
                 }`
               }
             >
-              <img src={img} alt={text} className="w-[18px] h-[16px]" />
+              <img src={img} alt={text} className="w-[18px] h-[16px] text-white/100"/>
               <p className="font-normal text-[14px] leading-[14px]">
                 {text}
               </p>
@@ -442,7 +445,7 @@ const isCase = index === 9;
     <div className="flex justify-between items-center h-[77px] bg-[#4338CA] px-4">
       <div className="flex items-center">
         <div className="w-[55px] h-[45px] rounded-2xl flex justify-center items-center bg-white">
-          <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px]" />
+          <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px] text-white" />
         </div>
         <h1 className="text-white text-[20px] font-normal ml-4">
           Legal Assistant
@@ -452,7 +455,7 @@ const isCase = index === 9;
       <button
         type="button"
         onClick={handleLogout}
-        className="px-4 py-2 bg-red-400 text-white rounded-[8px] shadow-2xl"
+        className="px-4 py-2 bg-red-600 hover:scale-105 transition-all duration-500 hover:bg-red-400 text-white rounded-[8px] shadow-2xl"
       >
         Logout
       </button>
@@ -514,11 +517,12 @@ const isCase = index === 9;
           type="button"
           onClick={startVoiceRecognition}
           className={`px-3 rounded-md cursor-pointer border ${
-            recognizing ? "bg-yellow-100" : "bg-gray-100"
+            recognizing ? "bg-gray-100 font-extrabold " : "bg-gray-100"
           } border-gray-300`}
           title="Click to speak"
+          
         >
-          🎤
+          <FaMicrophone />
         </button>
 
         <input
@@ -534,7 +538,7 @@ const isCase = index === 9;
         <button
           type="submit"
           disabled={loading}
-          className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[40px] rounded-[8px]"
+          className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[40px] hover:scale-104 transition-all duration-500 rounded-[8px]"
         >
           Send
         </button>

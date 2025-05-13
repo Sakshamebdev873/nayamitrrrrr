@@ -504,7 +504,7 @@ export const action = async ({ request }) => {
     
     return {
       error: error.response?.data?.message || 
-             `Document generation failed (${error.response?.status || 'no status'})`
+            `Document generation failed (${error.response?.status || 'no status'})`
     };
   }
 };
@@ -636,7 +636,7 @@ const handleDownload = () => {
       i1: "/c1.png",
       i2: "/c2.png",
       i3: "/c3.png",
-      g: "/g1.png",
+      g: "/1st2.png",
       h1: "First Information Report (FIR)",
       h2: "Police Complaint",
       h3: "Missing Person Report",
@@ -646,7 +646,7 @@ const handleDownload = () => {
       i1: "/c4.png",
       i2: "/c5.png",
       i3: "/c6.png",
-      g: "/g2.png",
+      g: "/2nd.png",
       h1: "RTI Application",
       h2: "Public Grievance Petition",
       h3: "Government Service Complaint",
@@ -656,7 +656,7 @@ const handleDownload = () => {
       i1: "/c7.png",
       i2: "/c8.png",
       i3: "/c9.png",
-      g: "/g3.png",
+      g: "/3rd.png",
       h1: "Consumer Complaint",
       h2: "Tenant/Landlord Notices",
       h3: "Small Cases Filing",
@@ -666,7 +666,7 @@ const handleDownload = () => {
       i1: "/c10.png",
       i2: "/c11.png",
       i3: "/c12.png",
-      g: "/g4.png",
+      g: "/4th.png",
       h1: "Affidavit Template",
       h2: "Legal Notice Format",
       h3: "Power of Attorney",
@@ -681,18 +681,18 @@ const navigation = useNavigation()
       return (
         <div
           key={index}
-          className="min-w-[22vw] bg-white shadow-sm hover:shadow-xl transition-all duration-300 min-h-[52vh] border-t-4 rounded-[8px] border-[#800020]"
+          className="min-w-[22vw] bg-white shadow-sm hover:shadow-xl transition-all duration-300 min-h-[52vh] border-t-4 rounded-[8px] border-blue-900"
         >
           <div className="flex flex-col justify-center items-start p-5">
             <div className="flex gap-x-3 max-w-[20vw] justify-start mt-4 items-center">
               <img src={g} alt="category-icon" className="h-[45px] w-[45px]" />
-              <h1 className="font-bold text-[20px] leading-[20px] text-[#0A2342]">{head}</h1>
+              <h1 className="font-bold text-[20px] leading-[20px] ml-1 text-[#0A2342]">{head}</h1>
             </div>
             <div className="mt-8 mx-3 flex flex-col gap-y-2 justify-center min-w-[16vw] max-w-[18vw] items-start">
               {[{ icon: i1, text: h1 }, { icon: i2, text: h2 }, { icon: i3, text: h3 }].map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-center justify-center mt-3">
+                <div key={idx} className="flex gap-2 items-center justify-center mt-5">
                   <img src={item.icon} alt="icon" className="w-[18px] h-[18px]" />
-                  <h1 className="text-[16px] font-normal leading-[16px] text-[#000000]">{item.text}</h1>
+                  <h1 className="text-[16px] font-normal leading-[20px] text-[#000000]">{item.text}</h1>
                 </div>
               ))}
             </div>

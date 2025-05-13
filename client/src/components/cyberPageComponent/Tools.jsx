@@ -57,14 +57,14 @@ export function ToolsAndResources() {
   const [activeIndex, setActiveIndex] = useState(null);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-xl">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mr-20 p-6 rounded-xl">
       {resources.map((tool, index) => (
         <motion.div
           key={index}
           whileHover={{ scale: 1.03 }}
           className="transition-shadow  rounded-xl"
         >
-          <Card className="border border-indigo-200 ">
+          <Card className="border border-indigo-200 mx-5 ">
             <CardHeader
               onClick={() =>
                 setActiveIndex(index === activeIndex ? null : index)
