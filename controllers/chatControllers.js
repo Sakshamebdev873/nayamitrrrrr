@@ -900,10 +900,11 @@ export const newSessionId = asyncHandler(async (req, res) => {
 
 
 export const submitUserCaseForm = asyncHandler(async (req, res) => {
-  const { userId, caseType, caseStage, caseFacts, jurisdiction, courtType } = req.body;
+  const { userId, caseType, caseStage, caseFacts, jurisdiction, courtType, userRole } = req.body;
 
-  if (!userId || !caseType || !caseStage || !caseFacts || !jurisdiction || !courtType) {
-    return res.status(400).json({ msg: 'Please provide all required fields.' });
+  if (!userId) {
+    console.log(userId);
+    return res.status(400).json({ msg: 'please enter user id.' });
   }
 
   const user = await User.findById(userId);
@@ -912,26 +913,29 @@ export const submitUserCaseForm = asyncHandler(async (req, res) => {
   }
 
   // PROMPTS with jurisdiction and courtType included
-const procedurePrompt = `
+  const procedurePrompt = `
 You are a legal assistant. Based on Indian legal procedures for a "${caseType}" case in "${courtType}" court under the "${jurisdiction}" jurisdiction, provide a step-by-step legal roadmap.
 
+User Role: ${userRole}
 Respond in clear bullet points. Each bullet point must be only 1–2 lines and focused on practical steps. Keep it concise and action-oriented.
 
 Facts: "${caseFacts}"
 `.trim();
-const assistingPrompt = `
+
+  const assistingPrompt = `
 You are a legal research assistant. For a "${caseType}" case in "${courtType}" court under "${jurisdiction}" jurisdiction, analyze the following facts:
 
+User Role: ${userRole}
 "${caseFacts}"
 
 List key supporting documents or arguments used in similar successful cases. Keep each bullet point under 2 lines. Use plain legal English and avoid long explanations.
 `.trim();
-const nextMovesPrompt = `
-You are an AI legal planner. Based on this case: "${caseType}" in "${courtType}" court, jurisdiction: "${jurisdiction}", and facts: "${caseFacts}", list the user's next 3–5 recommended steps.
+
+  const nextMovesPrompt = `
+You are an AI legal planner. Based on this case: "${caseType}" in "${courtType}" court, jurisdiction: "${jurisdiction}", facts: "${caseFacts}", and user role: "${userRole}", list the user's next 3–5 recommended steps.
 
 Each bullet should be short (max 2 lines), practical, and follow Indian legal procedure. Start directly with the action.
 `.trim();
-
 
   // Generate Gemini content
   const [procedureRes, assistingRes, nextMovesRes] = await Promise.all([
@@ -956,6 +960,7 @@ Each bullet should be short (max 2 lines), practical, and follow Indian legal pr
     caseStage,
     jurisdiction,
     courtType,
+    userRole,
     caseFacts,
     procedure: procedureRes.text.trim(),
     assistingDocuments: assistingRes.text.trim(),
@@ -971,6 +976,84 @@ Each bullet should be short (max 2 lines), practical, and follow Indian legal pr
   });
 });
 
+export const getUserCaseHistory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ msg: 'Invalid user ID' });
+  }
+
+  const cases = await UserCaseForm.find({ userId :id }).sort({ createdAt: -1 });
+
+  res.status(200).json({
+    msg: 'Case history fetched successfully',
+    count: cases.length,
+    cases,
+  });
+});
+export const updateUserCaseForm = asyncHandler(async (req, res) => {
+  const { caseId } = req.params;
+  const { caseType, caseStage, caseFacts, jurisdiction, courtType } = req.body;
+
+  const existingCase = await UserCaseForm.findById(caseId);
+  if (!existingCase) {
+    return res.status(404).json({ msg: 'Case not found' });
+  }
+
+  // AI prompts
+  const procedurePrompt = `
+You are a legal assistant. Based on Indian legal procedures for a "${caseType}" case in "${courtType}" court under the "${jurisdiction}" jurisdiction, provide a step-by-step legal roadmap.
+
+Respond in clear bullet points. Each bullet point must be only 1–2 lines and focused on practical steps. Keep it concise and action-oriented.
+
+Facts: "${caseFacts}"
+`.trim();
+
+  const assistingPrompt = `
+You are a legal research assistant. For a "${caseType}" case in "${courtType}" court under "${jurisdiction}" jurisdiction, analyze the following facts:
+
+"${caseFacts}"
+
+List key supporting documents or arguments used in similar successful cases. Keep each bullet point under 2 lines. Use plain legal English and avoid long explanations.
+`.trim();
+
+  const nextMovesPrompt = `
+You are an AI legal planner. Based on this case: "${caseType}" in "${courtType}" court, jurisdiction: "${jurisdiction}", and facts: "${caseFacts}", list the user's next 3–5 recommended steps.
+
+Each bullet should be short (max 2 lines), practical, and follow Indian legal procedure. Start directly with the action.
+`.trim();
+
+  // Generate updated content
+  const [procedureRes, assistingRes, nextMovesRes] = await Promise.all([
+    ai.models.generateContent({
+      model: 'gemini-2.5-pro-exp-03-25',
+      contents: [{ role: 'user', parts: [{ text: procedurePrompt }] }]
+    }),
+    ai.models.generateContent({
+      model: 'gemini-2.5-pro-exp-03-25',
+      contents: [{ role: 'user', parts: [{ text: assistingPrompt }] }]
+    }),
+    ai.models.generateContent({
+      model: 'gemini-2.5-pro-exp-03-25',
+      contents: [{ role: 'user', parts: [{ text: nextMovesPrompt }] }]
+    }),
+  ]);
+
+  existingCase.caseType = caseType;
+  existingCase.caseStage = caseStage;
+  existingCase.caseFacts = caseFacts;
+  existingCase.jurisdiction = jurisdiction;
+  existingCase.courtType = courtType;
+  existingCase.procedure = procedureRes.text.trim();
+  existingCase.assistingDocuments = assistingRes.text.trim();
+  existingCase.nextMoves = nextMovesRes.text.trim();
+
+  await existingCase.save();
+
+  res.status(200).json({
+    msg: 'Case updated successfully',
+    case: existingCase,
+  });
+});
 
 

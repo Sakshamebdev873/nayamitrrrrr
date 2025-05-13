@@ -748,9 +748,9 @@ const navigation = useNavigation()
             <div key={name}>
               <label className="capitalize">{name.replace(/([A-Z])/g, ' $1')}</label>
               {type === "textarea" ? (
-                <textarea name={name} placeholder={name.replace(/([A-Z])/g, ' $1')} onChange={handleChange} className="w-full p-2 border rounded" />
+                <textarea name={name} required placeholder={name.replace(/([A-Z])/g, ' $1')} onChange={handleChange} className="w-full p-2 border rounded" />
               ) : (
-                <input name={name} type={type} placeholder={name.replace(/([A-Z])/g, ' $1')} onChange={handleChange} className="w-full p-2 border rounded" />
+                <input name={name} type={type} required placeholder={name.replace(/([A-Z])/g, ' $1')} onChange={handleChange} className="w-full p-2 border rounded" />
               )}
             </div>
           ))}
@@ -771,52 +771,48 @@ const navigation = useNavigation()
           ].map((name) => (
             <div key={name}>
               <label className="capitalize">{name.replace(/([A-Z])/g, ' $1')}</label>
-              <input name={name} placeholder={name.replace(/([A-Z])/g, ' $1')} onChange={handleChange} className="w-full p-2 border rounded" />
+              <input name={name} required placeholder={name.replace(/([A-Z])/g, ' $1')} onChange={handleChange} className="w-full p-2 border rounded" />
             </div>
           ))}
 
-      <div className="space-y-4 p-4 border rounded">
-  <h3 className="font-bold">Fee Details</h3>
-  {[
-    { name: "paymentMode", type: "select", options: ["Demand Draft", "Banker's Cheque", "Cash", "Online Payment"] },
-    { name: "refNumber" },
-    { name: "paymentDate", type: "date" },
-    { name: "issuingAuthority" },
-    { name: "amount", type: "number" },
-  ].map(({ name, type = "text", options }) => (
-    <div key={name}>
-      <label className="capitalize">{name.replace(/([A-Z])/g, ' $1')}</label>
-      {type === "select" ? (
-        <select 
-          name={name} 
-          value={formData[name] || ''}  // Changed from formData.feeDetails[name]
-          onChange={handleChange}       // Changed from handleFeeDetailsChange
-          className="w-full p-2 border rounded"
-        >
-          <option value="">Select {name.replace(/([A-Z])/g, ' $1')}</option>
-          {options.map((opt) => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
-        </select>
-      ) : (
-        <input
-          name={name}
-          type={type}
-          placeholder={name.replace(/([A-Z])/g, ' $1')}
-          value={formData[name] || ''}  // Changed from formData.feeDetails[name]
-          onChange={handleChange}       // Changed from handleFeeDetailsChange
-          className="w-full p-2 border rounded"
-        />
-      )}
-    </div>
-  ))}
-</div>
+          <div className="space-y-4 p-4 border rounded">
+            <h3 className="font-bold">Fee Details</h3>
+            {[
+              { name: "paymentMode", type: "select", options: ["Demand Draft", "Banker's Cheque", "Cash", "Online Payment"] },
+              { name: "refNumber" },
+              { name: "paymentDate", type: "date" },
+              { name: "issuingAuthority" },
+              { name: "amount", type: "number" },
+            ].map(({ name, type = "text", options }) => (
+              <div key={name}>
+                <label className="capitalize">{name.replace(/([A-Z])/g, ' $1')}</label>
+                {type === "select" ? (
+                  <select name={name} required value={formData.feeDetails[name]} onChange={handleFeeDetailsChange} className="w-full p-2 border rounded">
+                    <option value="">Select {name.replace(/([A-Z])/g, ' $1')}</option>
+                    {options.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    name={name}
+                    type={type}
+                    placeholder={name.replace(/([A-Z])/g, ' $1')}
+                    value={formData.feeDetails[name]}
+                    required
+                    onChange={handleFeeDetailsChange}
+                    className="w-full p-2 border rounded"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
 
           {["infoRequired", "preferredFormat", "place", "date"].map((name) => (
             <div key={name}>
               <label className="capitalize">{name.replace(/([A-Z])/g, ' $1')}</label>
               <input
-                name={name}
+                name={name} required
                 type={name === "date" ? "date" : "text"}
                 placeholder={name.replace(/([A-Z])/g, ' $1')}
                 onChange={handleChange}
