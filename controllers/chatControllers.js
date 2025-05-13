@@ -364,34 +364,50 @@ export const submitSurvey = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Create a prompt for Gemini based on user responses
-    const prompt = generateGeminiPrompt(responses);
+    // Create a prompt asking Gemini to return a percentage likelihood
+    const prompt = generateGeminiPrompt(responses) + `
+Based on the user's responses, estimate the percentage likelihood (from 0% to 100%) that this individual is experiencing a violation of their legal or human rights.
 
-    // Call Gemini LLM for analysis
+Respond strictly in the following format:
+"Awareness Percentage: XX%"
+Then briefly explain your reasoning in 2–3 sentences.
+`;
+
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash", // Use the appropriate Gemini model
+      model: "gemini-2.0-flash",
       contents: prompt,
     });
 
-    const analysis = result.text.trim();
+    const fullText = result.text.trim();
 
-    // Determine the result (whether rights are violated or not)
-    const violationDetected = analyzeRightsViolation(analysis);
+    // Extract percentage using regex
+    const match = fullText.match(/Awareness Percentage:\s*(\d+)%/);
+    const awarenessPercentage = match ? parseInt(match[1], 10) : null;
+
+    let suggestion;
+    if (awarenessPercentage === null) {
+      suggestion = "Could not determine awareness percentage. Please re-submit the survey or contact support.";
+    } else if (awarenessPercentage >= 70) {
+      suggestion = `High likelihood of rights being violated (${awarenessPercentage}%). Please let us assist you immediately.`;
+    } else if (awarenessPercentage >= 40) {
+      suggestion = `Moderate likelihood of rights concern (${awarenessPercentage}%). We recommend seeking professional advice.`;
+    } else {
+      suggestion = `Low likelihood of rights violation (${awarenessPercentage}%). Stay informed and protected.`;
+    }
 
     res.status(200).json({
-      message: violationDetected
-        ? "Potential violation of rights detected. Please take necessary actions."
-        : "No rights violations detected. Your rights are protected.",
-      analysis: analysis,
-      Suggestion: violationDetected
-        ? "Please Let us help you "
-        : "You are safe....",
+      message: "Survey analysis completed.",
+      awarenessPercentage: awarenessPercentage ?? "Unknown",
+      analysis: fullText,
+      suggestion,
     });
+
   } catch (err) {
     console.error("Survey submission error:", err);
     res.status(500).json({ error: "Failed to analyze the survey." });
   }
 });
+
 
 export const suggestAlternativeResolution = async (req, res) => {
   const { caseType, details } = req.body;

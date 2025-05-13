@@ -168,7 +168,7 @@ const renderMarkdown = (text) => {
     </div>
 
     <div className="bg-gradient-to-r from-green-100 to-green-50 border-l-4 border-green-500 mt-6 text-green-800 p-5 rounded-xl shadow-inner">
-      <p className="font-semibold text-lg">{result.Suggestion !== "Please Let us help you" ? <Link to={'/signup'}>Let us help you by registering yourself</Link> : "You are in Right Environment" }</p>
+      <p className="font-semibold text-lg">{result.suggestion}</p>
     </div>
   </div>
 )}
