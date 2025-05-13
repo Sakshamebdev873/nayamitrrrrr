@@ -21,11 +21,11 @@ import {
 } from "recharts";
 
 const pieData = [
-  { name: "Phishing", value: 35 },
-  { name: "Identity Theft", value: 25 },
-  { name: "Online Scams", value: 20 },
-  { name: "Malware Attacks", value: 10 },
-  { name: "Cyberbullying", value: 10 },
+  { name: "Phishing", value: 5255 },
+  { name: "Identity Theft", value: 3462 },
+  { name: "Online Harssment", value: 4410 },
+  { name: "Ransomware", value: 1748 },
+  { name: "Credit Card Fraud", value: 2233 },
 ];
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#ff6666"];
 
@@ -78,8 +78,8 @@ function CategoryDistributionChart() {
         <li><strong>Phishing:</strong> Leading threat, growing 20% annually.</li>
         <li><strong>Identity Theft:</strong> Rising with data leaks, 15% annual increase.</li>
         <li><strong>Online Scams:</strong> Social media frauds drive 18% yearly rise.</li>
-        <li><strong>Malware Attacks:</strong> Surging with IoT device usage.</li>
-        <li><strong>Cyberbullying:</strong> Growing among teens, 10% annual increase.</li>
+        <li><strong>Credit Card Scams:</strong> Surging with IoT device usage.</li>
+        <li><strong>Cyber Bullying:</strong> Growing among teens, 10% annual increase.</li>
       </ul>
     </div>
     </>

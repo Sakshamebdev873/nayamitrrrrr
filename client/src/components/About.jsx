@@ -160,7 +160,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
   );
 };
 
-   const stateData = [
+  const stateData = [
 
 {
     stateName: "Andaman and Nicobar Islands",
@@ -172,8 +172,8 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     ],
     keyLawsAndRestrictions: [
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" },
-    { title: "Andaman and Nicobar Islands Forest Regulation, 1967", description: "Regulates forest management.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://www.drishtiias.com/to-the-points/paper3/biological-diversity-act-2002" },
+    { title: "Andaman and Nicobar Islands Forest Regulation, 1966", description: "Regulates forest management.", link: "https://www.indiacode.nic.in/bitstream/123456789/18989/1/1_9_6_6.pdf" }
     ],
     conservationEfforts: [
     "Establishment of marine national parks and wildlife sanctuaries",
@@ -192,8 +192,8 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     ],
     keyLawsAndRestrictions: [
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" },
-    { title: "Andhra Pradesh Forest Act, 1967", description: "Regulates forest management.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://www.indiacode.nic.in/bitstream/123456789/2046/4/a2003-18.pdf" },
+    { title: "Andhra Pradesh Forest Act, 1967", description: "Regulates forest management.", link: "https://www.indiacode.nic.in/bitstream/123456789/16404/1/act_no_1_of_1967.pdf" }
     ],
     conservationEfforts: [
     "Tiger conservation in Nagarjuna Sagar-Srisailam Tiger Reserve",
@@ -212,8 +212,8 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     "Home to the Namdapha flying squirrel"
     ],
     keyLawsAndRestrictions: [
-    { title: "Arunachal Pradesh Forest Regulation Act, 1948", description: "Regulates forest management.", link: "#" },
-    { title: "The Arunachal Pradesh Biodiversity Board", description: "Implements the Biological Diversity Act, 2002", link: "#" },
+    { title: "Arunachal Pradesh Forest Regulation Act, 1948", description: "Regulates forest management.", link: "https://arunachalforests.gov.in/acts-rules.html" },
+    { title: "The Arunachal Pradesh Biodiversity Board", description: "Implements the Biological Diversity Act, 2002", link: "https://arunachalforests.gov.in/acts-rules.html" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable in the state for protection of wildlife.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" }
     ],
     conservationEfforts: [
@@ -234,7 +234,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Assam Forest Regulation, 1891", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Rhino conservation in Kaziranga National Park",
@@ -254,7 +254,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Bihar Forest Act, 1981", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Efforts to conserve Gangetic dolphins",
@@ -273,8 +273,8 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     ],
     keyLawsAndRestrictions: [
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" },
-    { title: "Chandigarh Forest Rules, 1954", description: "Regulates forest management.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" },
+    { title: "Chandigarh Forest Rules, 1954", description: "Regulates forest management.", link: "https://chandigarh.gov.in/sites/default/files/documents/dev-control.pdf" }
     ],
     conservationEfforts: [
     "Management of Sukhna Wildlife Sanctuary",
@@ -294,7 +294,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Chhattisgarh Forest Act, 1968", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Protection of wild buffalo",
@@ -314,7 +314,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Indian Forest Act, 1927 (as applicable)", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Protection of forest areas",
@@ -334,7 +334,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Delhi Forest Act, 1994", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Development and management of biodiversity parks",
@@ -354,7 +354,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Goa, Daman and Diu Forest Act, 1984", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Protection of Western Ghats forests",
@@ -374,7 +374,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Gujarat Forest Act, 1927 (as applicable)", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Asiatic lion conservation project",
@@ -394,7 +394,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Indian Forest Act, 1927 (as applicable)", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Management of Sultanpur National Park (bird sanctuary)",
@@ -414,7 +414,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Himachal Pradesh Forest Act, 1968", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Snow leopard conservation projects",
@@ -434,7 +434,7 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
     keyLawsAndRestrictions: [
     { title: "Jammu and Kashmir Forest Act, 1930", description: "Regulates forest management.", link: "#" },
     { title: "Wildlife Protection Act, 1972", description: "Applicable for wildlife protection.", link: "https://en.wikipedia.org/wiki/Wildlife_Protection_Act,_1972" },
-    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "#" }
+    { title: "Biological Diversity Act, 2002", description: "For conservation of biological diversity.", link: "https://arunachalforests.gov.in/acts-rules.html" }
     ],
     conservationEfforts: [
     "Hangul conservation project",
@@ -492,17 +492,17 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
                 {
                     title: "Kerala Forest Act, 1961",
                     description: "Regulates forest management and conservation in Kerala.",
-                    link: "#", // Add real link
+                    link: "https://www.bing.com/search?q=Kerala+Conservation+of+Biodiversity+Rules%2C+2004&cvid=cd30623aae33498599ed8ba5abd5dcae&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOdIBBzYzMmowajSoAgiwAgE&FORM=ANAB01&PC=ASTS", // Add real link
                 },
                 {
                     title: "Kerala Conservation of Biodiversity Rules, 2004",
                     description: "Implements the Biological Diversity Act, 2002 in Kerala.",
-                    link: "#", // Add real link
+                    link: "https://www.bing.com/search?q=Kerala+Conservation+of+Biodiversity+Rules%2C+2004&cvid=cd30623aae33498599ed8ba5abd5dcae&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOdIBBzYzMmowajSoAgiwAgE&FORM=ANAB01&PC=ASTS", // Add real link
                 },
                 {
                 title: "The Kerala State Biodiversity Board",
                 description: "Works for the conservation of biological diversity",
-                link: "#"
+                link: "https://www.bing.com/search?q=Kerala+Conservation+of+Biodiversity+Rules%2C+2004&cvid=cd30623aae33498599ed8ba5abd5dcae&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOdIBBzYzMmowajSoAgiwAgE&FORM=ANAB01&PC=ASTS"
                 }
             ],
             conservationEfforts: [
@@ -527,12 +527,12 @@ const About1 = ({ stateName, uniqueBiodiversity, keyLawsAndRestrictions, conserv
                 {
                     title: "Maharashtra Forest Act, 1927",
                     description: "Governs forest management and conservation.",
-                    link: "#"
+                    link: "https://mahaforest.gov.in/index.php/codemanual"
                 },
                 {
                   title: "Maharashtra State Biodiversity Board",
                   description: "Implements the Biological Diversity Act, 2002",
-                  link: "#"
+                  link: "https://mahaforest.gov.in/index.php/codemanual"
                 },
                 {
                   title: "Wildlife Protection Act, 1972",

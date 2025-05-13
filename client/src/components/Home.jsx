@@ -1,5 +1,6 @@
 import React from 'react';
 import { Awareness } from './cyberPageComponent/Awareness';
+import { NavLink } from 'react-router-dom';
 
 import { PiBookOpenFill } from "react-icons/pi";
 import { TiDocumentText } from "react-icons/ti";
@@ -14,6 +15,7 @@ import { MdOutlineMan4 } from "react-icons/md";
 import { FaSchool } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
 import { Link } from 'react-router-dom';
+import { SiCyberdefenders } from "react-icons/si";
 import { Loader } from './Loader';
 import { motion } from 'framer-motion'; // Import motion
 
@@ -45,8 +47,8 @@ export function Home() {
   const smallCards = [
     {
     icon:<CiSearch/>,
-    heading:'Case Search',
-    para:'Search and track case status',
+    heading:'Case helper',
+    para:'Help you througout the journey',
   },
     {
     icon:<PiBookOpenFill/>,
@@ -55,23 +57,14 @@ export function Home() {
   },
     {
     icon:<TiDocumentText/>,
-    heading:'E-Filling',
-    para:'Submit court documents online',
+    heading:'E-Document',
+    para:'Generate documents online',
   },
     {
-    icon:<ImHammer2/>,
-    heading:'Recent Judgement',
-    para:'Latest court Decision',
+    icon:<SiCyberdefenders/>,
+    heading:'Cyber page',
+    para:'Latest Cyber related laws',
   },]
-//   const smallCards1 = [
-//   {
-//   icon:<PiDetectiveFill/>,
-//   heading:'Anonymous Reporting',
-//   icon2:<FaCircle/>,
-//   para:'Secure Channel Active',
-//   btn:'File Anonymous Report'
-// }]
-
 
   const buttonVariants = {
     initial: { opacity: 0, y: 20 },
@@ -100,7 +93,9 @@ export function Home() {
           animate="animate"
           variants={buttonVariants}
         >
-          <button className='bg-blue-500 font-medium rounded-lg font- text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'>Explore More</button>
+          
+          <button className='bg-blue-500 font-medium rounded-lg font- text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'>
+            Get Started</button>
         </motion.div>
 
         {/* numbers */}
@@ -119,6 +114,21 @@ export function Home() {
             <p className='font-serif text-center text-sm'>Support Available </p>
           </div>
         </div>
+
+        <div className='flex flex-col justify-center items-center my-12'>
+        <p className='font-normal text-blue-700 my-4 surv text-[48px] leading-[48px] '>Know Your Rights, Shape the Future</p>
+        <div className='text-sm italic tracking-tight my-3'>"Do you know what legal protections you're entitled to? Most people don't."</div>
+        <motion.div
+          className='flex justify-center my-5'
+          initial="initial"
+          animate="animate"
+          variants={buttonVariants}
+        >
+          <button className='bg-blue-500 font-medium rounded-lg font- text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'>
+            <NavLink to='Survey'>Take The Survey Now</NavLink></button>
+        </motion.div>
+        </div>
+
 
         {/* small-cards */}
         <div className='flex justify-around gap-3 ml-3 mt-5 overflow-x-auto p-10 mb-5'>
@@ -159,23 +169,23 @@ export function Home() {
     <div className="scroll-marquee flex items-center gap-x-8 px-4 overflow-hidden">
 
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-sm font-light font-serif hover:underline">
+        <a href="https://www.drishtiias.com/to-the-points/Paper2/important-judgements-of-independent-india" className="text-sm font-light font-serif hover:underline" target='_blank'>
           Supreme Court: Important verdict on fundamental rights
-        </Link>
+        </a>
         <div className="h-4 border-l border-gray-100"></div>
       </div>
 
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-sm font-light font-serif hover:underline">
+        <a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=1776202" target='_blank' className="text-sm font-light font-serif hover:underline">
           New guidelines for online dispute resolution
-        </Link>
+        </a>
         <div className="h-4 border-l border-gray-100"></div>
       </div>
 
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-sm font-light font-serif hover:underline">
+        <a href="https://doj.gov.in/legal-literacy-and-legal-awareness-programme-lllp/" target='_blank' className="text-sm font-light font-serif hover:underline">
           Government launches digital literacy program for legal aid
-        </Link>
+        </a>
         <div className="h-4 border-l border-gray-100"></div>
       </div>
     </div>

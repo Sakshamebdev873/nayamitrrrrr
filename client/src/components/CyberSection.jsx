@@ -2,6 +2,7 @@ import { ShieldAlert, AlertTriangle, WifiOff, Lock, Globe, FileWarning, Eye, Pho
 import React from 'react';
 
 import { Awareness } from './cyberPageComponent/Awareness';
+import {ThreatSimulator} from './Simulator'
 import { CyberLawCard } from './cyberPageComponent/Legal';
 import { CyberAnalyticsPage } from './cyberPageComponent/CyberAnalytics';
 import { ToolsAndResources } from './cyberPageComponent/Tools';
@@ -108,7 +109,7 @@ function AdditionalInsightsPanel() {
         {insights.map((item, idx) => (
           <li
             key={idx}
-            className="flex items-start gap-4 text-black p-4 rounded-xl transition"
+            className="flex items-start gap-4 text-black p-2 rounded-xl transition"
           >
             <div className="mt-1">{item.icon}</div>
             <p className="leading-relaxed">{item.text}</p>
@@ -173,6 +174,7 @@ export function CyberSection(){
           <div className='flex flex-col items-start gap-y-5 mt-5'>
             <h1 className='mx-10 text-4xl text-blue-600 font-extrabold '>Cyber Law & IT Act Essentials
             </h1>
+            
             <CyberLawCard/>
           </div>
             <h3 className="text-4xl font-bold text-blue-600 px-12 pt-4 mt-5  mb-4">Additional Insights</h3>
@@ -183,19 +185,20 @@ export function CyberSection(){
 
         {/* 5. Cybercrime Statistics */}
         <CyberAnalyticsPage/>
-        <div className=' my-10 '>
-        <Awareness/>
+        <div>
+        <div className="container mx-auto px-4">
+              <ThreatSimulator />
+            </div>
         </div>
 
+
         {/* 6. Tools & Resources */}
-        <ToolsAndResources/>
+        <div className="mx-auto">
+                <ToolsAndResources/>
+        </div>
+        
       </div>
 
-      {/* <div className="mt-12 text-center">
-        <Link to="/dashboard" className="text-blue-900 text-lg font-mono hover:underline transition-all transform duration-300">
-          ← Back to Dashboard
-        </Link>
-      </div> */}
     </div>
   );
 };

@@ -143,12 +143,12 @@ const handleContinueChat = async (sessionId) => {
         </button>
 
         {/* Hover Buttons OUTSIDE the box */}
-        <div className="flex gap-2 pt-2 pl-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <div className="flex gap-2 pt-2 pl-2 opacity-0 group-hover:opacity-100 duration-500 transition-opacity z-10">
           <ContinueChatButton sessionId={session.sessionId} />
           <button
             onClick={(e) => {
               e.stopPropagation();
-             handleDeleteChat(session.sessionId);
+            handleDeleteChat(session.sessionId);
             }}
             className="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded shadow"
           >
