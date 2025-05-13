@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Form, useActionData, useLoaderData, useNavigation, useParams } from "react-router";
+import { Form, useActionData, useLoaderData, useNavigation} from "react-router";
 import customFetch from "../utils/customFetch";
 import { toast } from "sonner";
+import { useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, FileText, ListChecks, FileSearch, RotateCw } from 'lucide-react';
+
 export const action = async ({ request }) => {
   const formdata = await request.formData();
   const data = Object.fromEntries(formdata);
@@ -19,10 +21,6 @@ export const action = async ({ request }) => {
   }
 };
 
-
-
-
-// Helper to remove "**" and apply bold formatting
 const formatMarkdownText = (text) => {
   return text.split(/\*\*(.*?)\*\*/g).map((part, index) =>
     index % 2 === 1 ? <strong key={index}>{part}</strong> : part
@@ -36,7 +34,7 @@ const RenderMarkdown = ({ content }) => {
     const trimmed = line.trim();
 
     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      const itemText = trimmed.slice(2); // remove "- " or "* "
+      const itemText = trimmed.slice(2);
       return (
         <motion.li
           key={i}
@@ -67,15 +65,44 @@ const RenderMarkdown = ({ content }) => {
   });
 };
 
-// export default RenderMarkdown;
-
 const CaseHelper = () => {
   const navigation = useNavigation();
   const { id } = useParams();
   const actionData = useActionData();
   const [activeTab, setActiveTab] = useState('procedure');
+  const location = useLocation();
+  const { caseId, fullCase } = location.state || {};
   
-  // Animation variants
+  // State for form fields
+  const [formData, setFormData] = useState({
+    caseType: '',
+    caseStage: '',
+    jurisdiction: '',
+    userRole: '',
+    caseFacts: ''
+  });
+
+  // Populate form with existing case data if available
+  useEffect(() => {
+    if (fullCase) {
+      setFormData({
+        caseType: fullCase.caseType || '',
+        caseStage: fullCase.caseStage || '',
+        jurisdiction: fullCase.jurisdiction || '',
+        userRole: fullCase.userRole || '',
+        caseFacts: fullCase.caseFacts || ''
+      });
+    }
+  }, [fullCase]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const tabVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
@@ -91,7 +118,7 @@ const CaseHelper = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {actionData ? 'Your Case Guide' : 'Step 1: Enter the Case Data'}
+          {actionData ? 'Your Case Guide' : fullCase ? 'Update Case Guide' : 'Step 1: Enter the Case Data'}
         </motion.h1>
         
         <AnimatePresence mode="wait">
@@ -185,155 +212,175 @@ const CaseHelper = () => {
               </div>
             </motion.div>
           ) : (
-        <motion.div
-  key="form"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  exit={{ opacity: 0 }}
-  className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 mt-10"
->
-  <Form method="POST" className="space-y-6">
-    <h1 className="text-2xl font-bold text-[#3c32b5] text-center mb-4">
-      Initialize the Case
-    </h1>
+            <motion.div
+              key="form"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 mt-10"
+            >
+              <Form method="POST" className="space-y-6">
+                <h1 className="text-2xl font-bold text-[#3c32b5] text-center mb-4">
+                  {fullCase ? 'Update Case Details' : 'Initialize the Case'}
+                </h1>
 
-    <input
-      type="text"
-      name="userId"
-      id="userId"
-      value={id}
-      hidden
-      readOnly
-    />
+                <input
+                  type="text"
+                  name="userId"
+                  id="userId"
+                  value={id}
+                  hidden
+                  readOnly
+                />
 
-    {/* Case Type */}
-    <div>
-      <label htmlFor="caseType" className="block text-sm font-medium text-gray-700 mb-1">
-        Case Type
-      </label>
-      <select
-        name="caseType"
-        id="caseType"
-        className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-      >
-        <option value="">Select a case type</option>
-        <option value="Eviction">Eviction</option>
-        <option value="Property Dispute">Property Dispute</option>
-        <option value="Divorce">Divorce</option>
-        <option value="Child Custody">Child Custody</option>
-        <option value="Domestic Violence">Domestic Violence</option>
-        <option value="Cheque Bounce">Cheque Bounce</option>
-        <option value="Consumer Complaint">Consumer Complaint</option>
-        <option value="RTI Appeal">RTI Appeal</option>
-        <option value="Criminal Complaint">Criminal Complaint</option>
-        <option value="Civil Suit">Civil Suit</option>
-        <option value="Bail Application">Bail Application</option>
-        <option value="Maintenance">Maintenance</option>
-        <option value="Inheritance Dispute">Inheritance Dispute</option>
-        <option value="Service Matter">Service Matter</option>
-        <option value="Writ Petition">Writ Petition</option>
-        <option value="Appeal">Appeal</option>
-        <option value="Defamation">Defamation</option>
-        <option value="Land Acquisition">Land Acquisition</option>
-      </select>
-    </div>
+                {caseId && (
+                  <input
+                    type="text"
+                    name="caseId"
+                    id="caseId"
+                    value={caseId}
+                    hidden
+                    readOnly
+                  />
+                )}
 
-    {/* Case Stage */}
-    <div>
-      <label htmlFor="caseStage" className="block text-sm font-medium text-gray-700 mb-1">
-        Case Stage
-      </label>
-      <select
-        name="caseStage"
-        id="caseStage"
-        className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-      >
-        <option value="">Select a case stage</option>
-        <option value="new_case">New Case</option>
-        <option value="pre_filing">Pre-filing</option>
-        <option value="filed">Filed</option>
-        <option value="discovery">Discovery</option>
-        <option value="trial_scheduled">Trial Scheduled</option>
-        <option value="judgment_issued">Judgment Issued</option>
-        <option value="appeal_started">Appeal Started</option>
-        <option value="appeal_pending">Appeal Pending</option>
-        <option value="appeal_decided">Appeal Decided</option>
-      </select>
-    </div>
+                {/* Case Type */}
+                <div>
+                  <label htmlFor="caseType" className="block text-sm font-medium text-gray-700 mb-1">
+                    Case Type
+                  </label>
+                  <select
+                    name="caseType"
+                    id="caseType"
+                    value={formData.caseType}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select a case type</option>
+                    <option value="Eviction">Eviction</option>
+                    <option value="Property Dispute">Property Dispute</option>
+                    <option value="Divorce">Divorce</option>
+                    <option value="Child Custody">Child Custody</option>
+                    <option value="Domestic Violence">Domestic Violence</option>
+                    <option value="Cheque Bounce">Cheque Bounce</option>
+                    <option value="Consumer Complaint">Consumer Complaint</option>
+                    <option value="RTI Appeal">RTI Appeal</option>
+                    <option value="Criminal Complaint">Criminal Complaint</option>
+                    <option value="Civil Suit">Civil Suit</option>
+                    <option value="Bail Application">Bail Application</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Inheritance Dispute">Inheritance Dispute</option>
+                    <option value="Service Matter">Service Matter</option>
+                    <option value="Writ Petition">Writ Petition</option>
+                    <option value="Appeal">Appeal</option>
+                    <option value="Defamation">Defamation</option>
+                    <option value="Land Acquisition">Land Acquisition</option>
+                  </select>
+                </div>
 
-    {/* Jurisdiction */}
-    <div>
-      <label htmlFor="jurisdiction" className="block text-sm font-medium text-gray-700 mb-1">
-        Jurisdiction
-      </label>
-      <select
-        name="jurisdiction"
-        id="jurisdiction"
-        className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-      >
-        <option value="">Select a jurisdiction</option>
-        <option value="District Court">District Court</option>
-        <option value="Sessions Court">Sessions Court</option>
-        <option value="High Court">High Court</option>
-        <option value="Supreme Court">Supreme Court</option>
-        <option value="Consumer Court">Consumer Court</option>
-        <option value="Family Court">Family Court</option>
-        <option value="Civil Court">Civil Court</option>
-        <option value="Criminal Court">Criminal Court</option>
-        <option value="Tribunal">Tribunal</option>
-        <option value="Lok Adalat">Lok Adalat</option>
-        <option value="Labour Court">Labour Court</option>
-        <option value="Motor Accident Claims Tribunal">Motor Accident Claims Tribunal</option>
-        <option value="Revenue Court">Revenue Court</option>
-        <option value="RTI Authority">RTI Authority</option>
-      </select>
-    </div>
+                {/* Case Stage */}
+                <div>
+                  <label htmlFor="caseStage" className="block text-sm font-medium text-gray-700 mb-1">
+                    Case Stage
+                  </label>
+                  <select
+                    name="caseStage"
+                    id="caseStage"
+                    value={formData.caseStage}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select a case stage</option>
+                    <option value="new_case">New Case</option>
+                    <option value="pre_filing">Pre-filing</option>
+                    <option value="filed">Filed</option>
+                    <option value="discovery">Discovery</option>
+                    <option value="trial_scheduled">Trial Scheduled</option>
+                    <option value="judgment_issued">Judgment Issued</option>
+                    <option value="appeal_started">Appeal Started</option>
+                    <option value="appeal_pending">Appeal Pending</option>
+                    <option value="appeal_decided">Appeal Decided</option>
+                  </select>
+                </div>
 
-    {/* Representation Type */}
-    <div>
-      <label htmlFor="userRole" className="block text-sm font-medium text-gray-700 mb-1">
-        Representation Type
-      </label>
-      <select
-        name="userRole"
-        id="userRole"
-        className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-      >
-        <option value="">Select representation</option>
-        <option value="self_represented">Self-Represented</option>
-        <option value="lawyer_assisted">Lawyer-Assisted</option>
-      </select>
-    </div>
+                {/* Jurisdiction */}
+                <div>
+                  <label htmlFor="jurisdiction" className="block text-sm font-medium text-gray-700 mb-1">
+                    Jurisdiction
+                  </label>
+                  <select
+                    name="jurisdiction"
+                    id="jurisdiction"
+                    value={formData.jurisdiction}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select a jurisdiction</option>
+                    <option value="District Court">District Court</option>
+                    <option value="Sessions Court">Sessions Court</option>
+                    <option value="High Court">High Court</option>
+                    <option value="Supreme Court">Supreme Court</option>
+                    <option value="Consumer Court">Consumer Court</option>
+                    <option value="Family Court">Family Court</option>
+                    <option value="Civil Court">Civil Court</option>
+                    <option value="Criminal Court">Criminal Court</option>
+                    <option value="Tribunal">Tribunal</option>
+                    <option value="Lok Adalat">Lok Adalat</option>
+                    <option value="Labour Court">Labour Court</option>
+                    <option value="Motor Accident Claims Tribunal">Motor Accident Claims Tribunal</option>
+                    <option value="Revenue Court">Revenue Court</option>
+                    <option value="RTI Authority">RTI Authority</option>
+                  </select>
+                </div>
 
-    {/* Case Description */}
-    <div>
-      <label htmlFor="caseFacts" className="block text-sm font-medium text-gray-700 mb-1">
-        Case Description
-      </label>
-      <textarea
-        id="caseFacts"
-        name="caseFacts"
-        placeholder="Enter detailed case facts here"
-        required
-        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        rows={6}
-      />
-    </div>
+                {/* Representation Type */}
+                <div>
+                  <label htmlFor="userRole" className="block text-sm font-medium text-gray-700 mb-1">
+                    Representation Type
+                  </label>
+                  <select
+                    name="userRole"
+                    id="userRole"
+                    value={formData.userRole}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select representation</option>
+                    <option value="self_represented">Self-Represented</option>
+                    <option value="lawyer_assisted">Lawyer-Assisted</option>
+                  </select>
+                </div>
 
-    {/* Submit Button */}
-    <div className="flex justify-center pt-4">
-      <button
-        type="submit"
-        className="bg-[#3c32b5] hover:bg-[#2b2799] text-white font-semibold py-3 px-8 rounded-lg transition duration-300"
-      >
-        {navigation.state === "submitting" ? "Generating..." : "Generate"}
-      </button>
-    </div>
-  </Form>
+                {/* Case Description */}
+                <div>
+                  <label htmlFor="caseFacts" className="block text-sm font-medium text-gray-700 mb-1">
+                    Case Description
+                  </label>
+                  <textarea
+                    id="caseFacts"
+                    name="caseFacts"
+                    value={formData.caseFacts}
+                    onChange={handleInputChange}
+                    placeholder="Enter detailed case facts here"
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    rows={6}
+                  />
+                </div>
 
-</motion.div>
-
-
+                {/* Submit Button */}
+                <div className="flex justify-center pt-4">
+                  <button
+                    type="submit"
+                    className="bg-[#3c32b5] hover:bg-[#2b2799] text-white font-semibold py-3 px-8 rounded-lg transition duration-300"
+                  >
+                    {navigation.state === "submitting" 
+                      ? fullCase ? "Updating..." : "Generating..." 
+                      : fullCase ? "Update Guide" : "Generate Guide"}
+                  </button>
+                </div>
+              </Form>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
@@ -342,4 +389,3 @@ const CaseHelper = () => {
 };
 
 export default CaseHelper;
-   

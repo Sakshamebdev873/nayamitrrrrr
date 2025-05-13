@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import customFetch from "../utils/customFetch";
-import { FileText, Filter, RotateCw, AlertCircle } from "lucide-react";
+import { FileText, Filter, RotateCw, AlertCircle, Trash2 } from "lucide-react";
 
+import {toast } from 'sonner'
+import { useEffect } from "react";
 export const loader = async ({ params }) => {
   try {
     const { id } = params;
@@ -72,7 +74,11 @@ const CaseHistory = () => {
     caseStage: "",
     jurisdiction: "",
   });
-
+const navigate = useNavigate();
+ const { revalidate } = useRevalidator(); 
+const [cases1, setCases] = useState(cases);
+const [deletingId, setDeletingId] = useState(null);
+const [isDeleting, setIsDeleting] = useState(false);
   const filteredCases = cases.filter((c) => {
     return (
       (!filters.caseType || c.caseType === filters.caseType) &&
@@ -94,6 +100,41 @@ const CaseHistory = () => {
       setIsResetting(false);
     }, 300);
   };
+const handleDelete = async (userId, caseId) => {
+  if (isDeleting) return;
+  
+  try {
+    setIsDeleting(true);
+    
+    if (!window.confirm("Are you sure you want to delete this case?")) {
+      return;
+    }
+
+    // Optimistic update
+    setCases(prev => prev.filter(c => c._id !== caseId));
+
+    // API call
+    const response = await customFetch.delete(`/deleteHistory/${userId}/${caseId}`);
+    revalidate();
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Delete failed");
+    }
+
+    toast.success("Case deleted successfully");
+  } catch (error) {
+    // Re-fetch data if error occurs
+    const { data } = await customFetch.get(`/case-history/${userId}`);
+    setCases(data.cases);
+    
+    toast.error(error.message || "Failed to delete case");
+  } finally {
+    setIsDeleting(false);
+  }
+};
+
+useEffect(() => {
+    setCases(cases);
+  }, [cases]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -247,16 +288,23 @@ const CaseHistory = () => {
                       className="text-sm bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition-colors"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                        onClick={() =>
+    navigate(`/caseHelper/${item.userId}`, {
+      state: { caseId: item._id, fullCase: item }
+    })
+  }
                     >
                       Update
                     </motion.button>
-                    <motion.button 
-                      className="text-sm bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Delete
-                    </motion.button>
+                    <motion.button
+  onClick={() => handleDelete(item.userId, item._id)}
+  disabled={isDeleting}
+  className={`text-sm bg-red-500 text-white px-3 py-1 rounded-md ${
+    isDeleting ? 'opacity-50' : 'hover:bg-red-600'
+  } transition-colors`}
+>
+  {isDeleting ? 'Deleting...' : 'Delete'}
+</motion.button>
                   </div>
                 </div>
 

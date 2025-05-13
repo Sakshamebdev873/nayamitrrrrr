@@ -461,7 +461,7 @@ const isCase = index === 8;
       <button
         type="button"
         onClick={handleLogout}
-        className="px-4 py-2 bg-red-600 hover:scale-105 transition-all duration-500 hover:bg-red-400 text-white rounded-[8px] shadow-2xl"
+        className="px-4 py-2 bg-red-600 cursor-pointer hover:scale-105 transition-all duration-500 hover:bg-red-400 text-white rounded-[8px] shadow-2xl"
       >
         Logout
       </button>
