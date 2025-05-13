@@ -1,232 +1,279 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import customFetch from '../utils/customFetch';
-import { History, User, Bot } from 'lucide-react';
-import { useLoaderData, redirect, useNavigate, useParams } from 'react-router-dom';
+import { History, User, Bot, Trash2, RotateCw, ChevronRight, MessageSquare } from 'lucide-react';
+import { useLoaderData, useNavigate, useParams, useRevalidator } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export const loader = async ({ params }) => {
   try {
     const { id } = params;
     const { data } = await customFetch.get(`/history/${id}`);
-    // console.log(data);
     return data;
   } catch (error) {
-    console.log(error);
-    return redirect("/login");
+    console.error("Loader error:", error);
+    throw error;
   }
 };
 
-function renderMarkdown(text) {
+const renderMarkdown = (text) => {
   if (!text) return '';
   return text
-    .replace(/```([^`]+)```/g, '<pre class="bg-gray-800 text-white p-2 rounded-md overflow-x-auto"><code>$1</code></pre>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/_(.*?)_/g, '<em>$1</em>')
-    .replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>')
+    .replace(/```([^`]+)```/g, '<pre class="bg-gray-800 text-white p-2 rounded-md overflow-x-auto"><code>$1</code></pre>')
+    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>')
     .replace(/\n/g, '<br />');
-}
+};
+
 const HHistory = () => {
-const data = useLoaderData();
-  const [sessions, setSessions] = useState(data);
+  const initialData = useLoaderData();
+  const [sessions, setSessions] = useState(initialData);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [isContinuing, setIsContinuing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(null);
+  const [isContinuing, setIsContinuing] = useState(null);
+  const { revalidate } = useRevalidator();
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const selectedSession = sessions.otherSessions.find(
-    (session) => session.sessionId === selectedSessionId
-  );
+  // Sync with loader data
+  useEffect(() => {
+    setSessions(initialData);
+  }, [initialData]);
 
   const handleDeleteChat = async (sessionId) => {
     if (!window.confirm("Are you sure you want to delete this chat?")) return;
-
+    
+    setIsDeleting(sessionId);
     try {
-      const { data } = await customFetch.post(`/delete/${id}`, {
-        sessionId
-      });
+      // Optimistic update
+      setSessions(prev => ({
+        ...prev,
+        otherSessions: prev.otherSessions.filter(s => s.sessionId !== sessionId)
+      }));
 
-      if (data.success) {
-        setSelectedSessionId(null);
-        setSessions({
-          currentSession: null,
-          otherSessions: sessions.otherSessions.filter(s => s.sessionId !== sessionId)
-        });
-      } else {
-        alert(data.message || "Failed to delete chat");
-      }
-    } catch (error) {
-      console.error("Delete error:", error);
-      alert("Error deleting chat. Please try again.");
-    }
-  };
-const handleContinueChat = async (sessionId) => {
-    try {
-      setIsContinuing(true);
+      // Server deletion
+      const { data } = await customFetch.post(`/delete/${id}`, { sessionId });
       
-      // 1. Update the session cookie
-      const { data } = await customFetch.post('/change', {
-        sessionId
-      });
-      
-      if (data.sessionId) {
-        // 2. Redirect to chat interface
-        navigate(`/chat/${id}`); // Adjust to your chat route
-      } else {
-        console.error('Failed to continue chat:', data);
-        alert('Failed to continue chat. Please try again.');
-      }
+      if (!data.success) throw new Error(data.message || "Deletion failed");
+
+      // Dual validation
+      await Promise.all([
+        revalidate(),
+        customFetch.get(`/history/${id}`).then(({ data }) => {
+          setSessions(data);
+        })
+      ]);
+
+      toast.success("Chat deleted successfully");
+      if (selectedSessionId === sessionId) setSelectedSessionId(null);
     } catch (error) {
-      console.error('Error continuing chat:', error);
-      alert('An error occurred while continuing the chat.');
+      // Revert on error
+      const { data } = await customFetch.get(`/history/${id}`);
+      setSessions(data);
+      toast.error(error.message || "Failed to delete chat");
     } finally {
-      setIsContinuing(false);
+      setIsDeleting(null);
     }
   };
 
-
-  // Update your Continue Chat button:
-  const ContinueChatButton = ({ sessionId }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleContinueChat(sessionId);
-      }}
-      disabled={isContinuing}
-      className={`text-xs px-2 py-1 ${
-        isContinuing 
-          ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
-          : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
-      } rounded shadow flex items-center gap-1`}
-    >
-      {isContinuing ? (
-        <>
-          <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Continuing...
-        </>
-      ) : (
-        <>➤ Continue Chat</>
-      )}
-    </button>
-  );
-  return (
-  <div className="flex h-screen overflow-hidden">
-  {/* Sidebar */}
-  <div className="shadow-xl bg-gray-100 h-full rounded-r-2xl w-[20vw] p-4 overflow-y-auto">
-    <h1 className="text-xl font-semibold text-black mb-3">Conversations</h1>
-    <h2 className="text-sm flex items-center gap-2 text-gray-700 mb-4">
-      <History size={16} /> Previous Conversations
-    </h2>
-
-    <div className="flex flex-col gap-2">
- {data.otherSessions.length > 0 ? (
-  data.otherSessions.map((session) => {
-    const isActive = selectedSessionId === session.sessionId;
-
-    return (
-      <div key={session.sessionId} className="relative group w-full">
-        {/* Title Button */}
-        <button
-          onClick={() => setSelectedSessionId(session.sessionId)}
-          className={`w-full text-left px-3 py-2 rounded-lg border text-sm shadow-sm flex flex-col items-start ${
-            isActive
-              ? 'bg-blue-100 border-blue-500 border-l-4 font-semibold text-blue-800'
-              : 'bg-white border-gray-300 hover:bg-blue-50'
-          }`}
-        >
-          {session.title.split('\n').map((line, idx) => (
-            <div key={idx} dangerouslySetInnerHTML={{ __html: line }} />
-          ))}
-        </button>
-
-        {/* Hover Buttons OUTSIDE the box */}
-        <div className="flex gap-2 pt-2 pl-2 opacity-0 group-hover:opacity-100 duration-500 transition-opacity z-10">
-          <ContinueChatButton sessionId={session.sessionId} />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-            handleDeleteChat(session.sessionId);
-            }}
-            className="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded shadow"
-          >
-            🗑 Delete Chat
-          </button>
-        </div>
-      </div>
-    );
-  })
-  ) : (
-    <div className="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-3 rounded text-sm">
-      <strong>No previous sessions found.</strong><br />
-      This section only shows your past conversation history.
-    </div>
-  )}
-</div>
-
-  </div>
-
-  {/* Chat Viewer */}
-  <div className="bg-white text-black h-full rounded-l-2xl w-[80vw] p-6 overflow-y-auto shadow-lg">
-    {selectedSession &&
-  (() => {
-    const pairedMessages = [];
-    const messages = selectedSession.messages;
-
-    for (let i = 0; i < messages.length - 1; i++) {
-      const userMsg = messages[i];
-      const assistantMsg = messages[i + 1];
-
-      if (
-        userMsg.role === "user" &&
-        assistantMsg.role === "assistant" &&
-        userMsg.prompt?.trim() &&
-        assistantMsg.response?.trim()
-      ) {
-        pairedMessages.push({
-          prompt: userMsg.prompt,
-          response: assistantMsg.response,
-        });
-        i++; // Skip next because it's already paired
+  const handleContinueChat = async (sessionId) => {
+    setIsContinuing(sessionId);
+    try {
+      const { data } = await customFetch.post('/change', { sessionId });
+      console.log(data);
+      
+      if (data.msg) {
+        navigate(`/chat/${id}`);
+        toast.success("Chat session resumed");
+      } else {
+        throw new Error(data.message || "Failed to continue chat");
       }
+    } catch (error) {
+      toast.error(error.message || "Error continuing chat");
+    } finally {
+      setIsContinuing(null);
     }
+  };
 
-    return (
-      <AnimatePresence>
-        {pairedMessages.map((msg, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="mb-6 bg-gray-100 rounded-xl p-4 shadow-sm"
-          >
-            <div className="flex items-center gap-2 text-blue-700 font-semibold mb-1">
-              <User size={16} /> User:
-            </div>
-            <p className="mb-3 text-gray-800 text-sm">{msg.prompt}</p>
+  const selectedSession = sessions.otherSessions.find(
+    session => session.sessionId === selectedSessionId
+  );
 
-            <div className="flex items-center gap-2 text-green-700 font-semibold mb-1">
-              <Bot size={16} /> Assistant:
-            </div>
-            <div
-              className="text-gray-800 text-sm leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: renderMarkdown(msg.response),
-              }}
-            />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    );
-  })()}
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-80 border-r border-gray-200 bg-white p-4 overflow-y-auto">
+        <div className="flex items-center gap-2 mb-6">
+          <History className="text-blue-600" size={20} />
+          <h1 className="text-xl font-bold text-gray-800">Chat History</h1>
+        </div>
 
-  </div>
-</div>
+        {sessions.otherSessions.length > 0 ? (
+          <div className="space-y-2">
+            {sessions.otherSessions.map((session) => (
+              <motion.div
+                key={session.sessionId}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="relative group"
+              >
+                <button
+                  onClick={() => setSelectedSessionId(session.sessionId)}
+                  disabled={isDeleting === session.sessionId || isContinuing === session.sessionId}
+                  className={`w-full text-left p-3 rounded-lg flex items-center justify-between ${
+                    selectedSessionId === session.sessionId
+                      ? 'bg-blue-50 border-l-2 border-blue-500'
+                      : 'hover:bg-gray-100'
+                  } transition-colors ${
+                    (isDeleting === session.sessionId || isContinuing === session.sessionId) 
+                      ? 'opacity-70' : ''
+                  }`}
+                >
+                  <span className="truncate text-sm font-medium">
+                    {session.title || "Untitled Chat"}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                  {(isDeleting === session.sessionId || isContinuing === session.sessionId) && (
+                    <div className="absolute right-3">
+                      <RotateCw className="animate-spin h-4 w-4 text-blue-500" />
+                    </div>
+                  )}
+                </button>
 
+                <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleContinueChat(session.sessionId);
+                    }}
+                    className="p-1 rounded-full bg-green-50 hover:bg-green-100 text-green-600"
+                    title="Continue chat"
+                    disabled={isContinuing === session.sessionId}
+                  >
+                    <MessageSquare size={16} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteChat(session.sessionId);
+                    }}
+                    className="p-1 rounded-full bg-red-50 hover:bg-red-100 text-red-600"
+                    title="Delete chat"
+                    disabled={isDeleting === session.sessionId}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p>No chat history found</p>
+            <p className="text-sm mt-1">Start new chats to see them here</p>
+          </div>
+        )}
+      </div>
+
+      {/* Chat Viewer */}
+      <div className="flex-1 overflow-y-auto bg-white p-6">
+        {selectedSession ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedSessionId}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="max-w-3xl mx-auto"
+            >
+              <div className="mb-6 flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-1">
+                    {selectedSession.title || "Chat Details"}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {new Date(selectedSession.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleContinueChat(selectedSessionId)}
+                  disabled={isContinuing === selectedSessionId}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-70"
+                >
+                  {isContinuing === selectedSessionId ? (
+                    <>
+                      <RotateCw className="animate-spin h-4 w-4" />
+                      Continuing...
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare size={16} />
+                      Continue Chat
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {selectedSession.messages
+                  .reduce((acc, msg, i, arr) => {
+                    if (msg.role === "user" && arr[i+1]?.role === "assistant") {
+                      acc.push({
+                        prompt: msg.prompt,
+                        response: arr[i+1].response
+                      });
+                    }
+                    return acc;
+                  }, [])
+                  .map((msg, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="border-b border-gray-100 pb-6 last:border-0"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="bg-blue-100 p-2 rounded-full">
+                          <User className="text-blue-600" size={18} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">User</p>
+                          <p className="text-gray-700 mt-1">{msg.prompt}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="bg-green-100 p-2 rounded-full">
+                          <Bot className="text-green-600" size={18} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">Assistant</p>
+                          <div
+                            className="prose prose-sm mt-1 text-gray-700"
+                            dangerouslySetInnerHTML={{
+                              __html: renderMarkdown(msg.response)
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <Bot size={48} className="mb-4 text-gray-300" />
+            <p className="text-lg">Select a chat from the sidebar</p>
+            <p className="text-sm mt-1">or start a new conversation</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

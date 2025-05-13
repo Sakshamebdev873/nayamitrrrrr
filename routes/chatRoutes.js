@@ -11,7 +11,7 @@ router.post('/submitSurvey',submitSurvey)
 router.post('/dispute',suggestAlternativeResolution)
 router.post("/analyze", upload.single("pdf"), analyzePdf);
 router.post('/change',changeSession)
-router.delete('/delete/:id',deleteSession)
+router.post('/delete/:id',deleteSession)
 router.get('/new/:id',newSessionId)
 router.post('/caseHelper',submitUserCaseForm)
 router.get('/caseHistory/:id',getUserCaseHistory)
