@@ -1,5 +1,5 @@
 import express from 'express'
-import {analyzePdf, changeSession, createChat, deleteSession, generateDocument, getHistory, getNearbyJudiciaryOSM, newSessionId, submitSurvey, submitUserCaseForm, suggestAlternativeResolution, surveyQuestion} from '../controllers/chatControllers.js'
+import {analyzePdf, changeSession, createChat, deleteSession, generateDocument, getHistory, getNearbyJudiciaryOSM, getUserCaseHistory, newSessionId, submitSurvey, submitUserCaseForm, suggestAlternativeResolution, surveyQuestion} from '../controllers/chatControllers.js'
 const router = express.Router()
 import upload from '../middleware/multerMiddleware.js' 
 router.post('/create/:id',createChat)
@@ -14,4 +14,5 @@ router.post('/change',changeSession)
 router.delete('/delete/:id',deleteSession)
 router.get('/new/:id',newSessionId)
 router.post('/caseHelper',submitUserCaseForm)
+router.get('/caseHistory/:id',getUserCaseHistory)
 export default router

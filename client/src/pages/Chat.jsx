@@ -200,6 +200,7 @@ const Chat = () => {
   const [inputText, setInputText] = useState("");
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
+  
   const handleVoiceInput = () => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
@@ -353,7 +354,11 @@ const Chat = () => {
       img: "/n1.png",
       text: "Case Analysis",
       path: "/dashboard",
-    },
+    },{
+      img: '/n1.png',
+      text : "Case Helper",
+      path : `/caseHelper/${id}`
+    }
   ];
 
   const handleLogout = async () => {
@@ -397,12 +402,17 @@ const Chat = () => {
       {Sidebardata.map((item, index) => {
         const { img, text, path } = item;
         const isResourceHeader = index === 5;
-
+const isCase = index === 9;
         return (
           <div key={index}>
             {isResourceHeader && (
               <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
                 Resources
+              </h1>
+            )}
+            {isCase && (
+              <h1 className="px-4 font-normal text-[14px] leading-[100%] text-[#FFFFFF99] mt-4">
+                Case
               </h1>
             )}
             <NavLink
