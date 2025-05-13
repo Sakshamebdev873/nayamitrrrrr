@@ -6,12 +6,14 @@ import dotenv from "dotenv";
 dotenv.config();
 import axios from "axios";
 import fs from "fs";
+import UserCaseForm from '../models/UserCaseForm.js'
 import path from "path";
 import pdfParse from "pdf-parse";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import mongoose from "mongoose";
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API });
-const ai1 = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const ai1 = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Multilingual Legal System Prompts
 
 const getLegalSystemPrompt = (lang) => {
@@ -126,7 +128,7 @@ You are “NyayaMitr” an AI legal assistant embedded in the Department of Just
     .join("\n");
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-pro-exp-03-25",
+    model: "gemini-2.0-flash",
     contents: [
       {
         role: "user",
@@ -198,11 +200,11 @@ You are “NyayaMitr” an AI legal assistant embedded in the Department of Just
 
 export const getHistory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  console.log(req.userId);
+  // console.log(req.userId);
   
   // 1. Enhanced cookie logging
   // console.log('Raw cookie:', req.cookies?.sessionId);
-  console.log('Signed cookie:', req.signedCookies?.sessionId);
+  // console.log('Signed cookie:', req.signedCookies?.sessionId);
   const cookieSessionId = (req.signedCookies.sessionId || req.cookies.sessionId || "").toString().trim();
   // console.log('Normalized cookie ID:', `"${cookieSessionId}"`);
 
@@ -481,7 +483,11 @@ const rtiPrompt = (
   residencePhone,
   mobile,
   isBPL,
-  feeDetails,
+  paymentMode,
+  refNumber,
+  paymentDate,
+  issuingAuthority,
+  amount,
   infoRequired,
   preferredFormat,
   place,
@@ -507,11 +513,11 @@ const rtiPrompt = (
 4. दूरभाष: कार्यालय - ${officePhone}, आवास - ${residencePhone}, मोबाइल - ${mobile}
 5. बीपीएल श्रेणी से संबंधित: ${isBPL ? "हां (प्रमाण संलग्न करें)" : "नहीं"}
 6. शुल्क विवरण: 
-   भुगतान का माध्यम: ${feeDetails.paymentMode || "Not Provided"}
-   संदर्भ संख्या: ${feeDetails.refNumber || "Not Provided"}
-   भुगतान की तिथि: ${feeDetails.paymentDate || "Not Provided"}
-   जारीकर्ता संस्था: ${feeDetails.issuingAuthority || "Not Provided"}
-   राशि: ₹${feeDetails.amount || "Not Provided"}/-
+   भुगतान का माध्यम: ${paymentMode || "Not Provided"}
+   संदर्भ संख्या: ${refNumber || "Not Provided"}
+   भुगतान की तिथि: ${paymentDate || "Not Provided"}
+   जारीकर्ता संस्था: ${issuingAuthority || "Not Provided"}
+   राशि: ₹${amount || "Not Provided"}/-
 7. मांगी गई जानकारी: ${infoRequired}
    वांछित प्रारूप: ${preferredFormat}
 
@@ -538,17 +544,19 @@ Applicant Details:
 4. Telephone No: Office - ${officePhone}, Residence - ${residencePhone}, Mobile - ${mobile}
 5. BPL Category: ${isBPL ? "Yes (BPL Proof Attached)" : "No"}
 6. Application Fee Details: 
-   Mode of Payment: ${feeDetails.paymentMode || "Not Provided"}
-   Reference Number: ${feeDetails.refNumber || "Not Provided"}
-   Payment Date: ${feeDetails.paymentDate || "Not Provided"}
-   Issuing Authority: ${feeDetails.issuingAuthority || "Not Provided"}
-   Amount Paid: Rs. ${feeDetails.amount || "Not Provided"}/-
+   Mode of Payment: ${paymentMode || "Not Provided"}
+   Reference Number: ${refNumber || "Not Provided"}
+   Payment Date: ${paymentDate || "Not Provided"}
+   Issuing Authority: ${issuingAuthority || "Not Provided"}
+   Amount Paid: Rs. ${amount || "Not Provided"}/-
 7. Particulars of Information Required: ${infoRequired}
    Preferred Medium: ${preferredFormat}
 
 Place: ${place}
 Date: ${date}`;
 };
+
+
 const firPrompt = (
   description,
   language,
@@ -613,7 +621,6 @@ Police Station: ${policeStation}
 };
 
 // Helper function for FIR prompt
-
 export const generateDocument = asyncHandler(async (req, res) => {
   try {
     const {
@@ -647,7 +654,11 @@ export const generateDocument = asyncHandler(async (req, res) => {
       residencePhone,
       mobile,
       isBPL,
-      feeDetails,
+      paymentMode,
+  refNumber,
+  paymentDate,
+  issuingAuthority,
+  amount,
       infoRequired,
       preferredFormat,
       place,
@@ -720,20 +731,7 @@ export const generateDocument = asyncHandler(async (req, res) => {
       );
     } else if (type === "RTI") {
       // Validate required RTI fields
-      const requiredRtiFields = [
-        'fullName', 'rtiAddress', 'infoRequired', 'place', 'date'
-      ];
-      const missingRtiFields = requiredRtiFields.filter(field => !req.body[field]);
-
-      if (missingRtiFields.length > 0) {
-        return res.status(400).json({
-          error: "Missing required RTI fields",
-          details: {
-            missing: missingRtiFields,
-            message: `RTI requires these fields: ${requiredRtiFields.join(', ')}`
-          }
-        });
-      }
+     
 
       prompt = rtiPrompt(
         language,
@@ -745,7 +743,11 @@ export const generateDocument = asyncHandler(async (req, res) => {
         residencePhone,
         mobile,
         isBPL,
-        feeDetails,
+        paymentMode,
+  refNumber,
+  paymentDate,
+  issuingAuthority,
+  amount,
         infoRequired,
         preferredFormat,
         place,
@@ -895,3 +897,80 @@ export const newSessionId = asyncHandler(async (req, res) => {
     token, // Raw JWT (matches cookie)
   });
 });
+
+
+export const submitUserCaseForm = asyncHandler(async (req, res) => {
+  const { userId, caseType, caseStage, caseFacts, jurisdiction, courtType } = req.body;
+
+  if (!userId || !caseType || !caseStage || !caseFacts || !jurisdiction || !courtType) {
+    return res.status(400).json({ msg: 'Please provide all required fields.' });
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ msg: 'User not found' });
+  }
+
+  // PROMPTS with jurisdiction and courtType included
+const procedurePrompt = `
+You are a legal assistant. Based on Indian legal procedures for a "${caseType}" case in "${courtType}" court under the "${jurisdiction}" jurisdiction, provide a step-by-step legal roadmap.
+
+Respond in clear bullet points. Each bullet point must be only 1–2 lines and focused on practical steps. Keep it concise and action-oriented.
+
+Facts: "${caseFacts}"
+`.trim();
+const assistingPrompt = `
+You are a legal research assistant. For a "${caseType}" case in "${courtType}" court under "${jurisdiction}" jurisdiction, analyze the following facts:
+
+"${caseFacts}"
+
+List key supporting documents or arguments used in similar successful cases. Keep each bullet point under 2 lines. Use plain legal English and avoid long explanations.
+`.trim();
+const nextMovesPrompt = `
+You are an AI legal planner. Based on this case: "${caseType}" in "${courtType}" court, jurisdiction: "${jurisdiction}", and facts: "${caseFacts}", list the user's next 3–5 recommended steps.
+
+Each bullet should be short (max 2 lines), practical, and follow Indian legal procedure. Start directly with the action.
+`.trim();
+
+
+  // Generate Gemini content
+  const [procedureRes, assistingRes, nextMovesRes] = await Promise.all([
+    ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{ role: 'user', parts: [{ text: procedurePrompt }] }]
+    }),
+    ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{ role: 'user', parts: [{ text: assistingPrompt }] }]
+    }),
+    ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{ role: 'user', parts: [{ text: nextMovesPrompt }] }]
+    }),
+  ]);
+
+  // Save to DB
+  const newCase = await UserCaseForm.create({
+    userId,
+    caseType,
+    caseStage,
+    jurisdiction,
+    courtType,
+    caseFacts,
+    procedure: procedureRes.text.trim(),
+    assistingDocuments: assistingRes.text.trim(),
+    nextMoves: nextMovesRes.text.trim(),
+  });
+
+  res.status(201).json({
+    msg: 'Case created successfully',
+    caseId: newCase._id,
+    procedure: newCase.procedure,
+    assistingDocuments: newCase.assistingDocuments,
+    nextMoves: newCase.nextMoves,
+  });
+});
+
+
+
+
