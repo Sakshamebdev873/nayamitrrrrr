@@ -161,7 +161,7 @@ const ContributorsSection = () => (
         name="Jawaharlal Nehru"
         role="Prime Minister"
         contribution="Moved Objectives Resolution"
-        image="https://imgs.search.brave.com/necLduenCK4B1CJ0KI14zQ3GkNsvurmc3TuKAw48lSw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9oaXBz/LmhlYXJzdGFwcHMu/Y29tL2htZy1wcm9k/L2ltYWdlcy9nZXR0/eWltYWdlcy04MjU5/ODQ1Mi5qcGc_Y3Jv/cD0xeHc6MS4weGg7/Y2VudGVyLHRvcCZy/ZXNpemU9NjQwOio"
+        image="https://imgs.search.brave.com/4igWpMcGzVl2FDp3yWLCwjis5K-OlJDnZiqihbgTics/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvOTYx/ODAzODM0L3Bob3Rv/L2phd2FoYXJsYWwt/bmVocnUtcHJpbWUt/bWluaXN0ZXItb2Yt/aW5kaWEtMTk0Ny5q/cGc_cz02MTJ4NjEy/Jnc9MCZrPTIwJmM9/MGJqLVowS194X1Rw/NmI5aEdrRl80Qmt6/MEZfNzBORzg4ekFE/UHJpSlpRUT0"
       />
       <ContributorCard
         name="Rajendra Prasad"

@@ -357,9 +357,14 @@ const Chat = () => {
       text: "Case Analysis",
       path: "/dashboard",
     },{
-      img: '/n1.png',
+      img: '/case2.png',
       text : "Case Helper",
       path : `/caseHelper/${id}`
+    },
+    {
+      img: '/history (1).png',
+      text : "Case History",
+      path : `/caseHistory/${id}`
     }
   ];
 

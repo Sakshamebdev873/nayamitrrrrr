@@ -94,8 +94,10 @@ export function Home() {
           variants={buttonVariants}
         >
           
-          <button className='bg-blue-500 font-medium rounded-lg font- text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'>
-            Get Started</button>
+          <Link to={'/signup'} onClick={() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }} className='bg-blue-500 cursor-pointer font-medium rounded-lg font- text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'>
+            Get Started</Link>
         </motion.div>
 
         {/* numbers */}
@@ -124,8 +126,14 @@ export function Home() {
           animate="animate"
           variants={buttonVariants}
         >
-          <button className='bg-blue-500 font-medium rounded-lg font- text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'>
-            <NavLink to='Survey'>Take The Survey Now</NavLink></button>
+         <button
+  className='bg-blue-500 font-medium rounded-lg text-white px-8 py-2 shadow-md hover:bg-blue-600 transition-colors duration-300'
+  onClick={() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }}
+>
+  <NavLink to='/Survey'>Take The Survey Now</NavLink>
+</button>
         </motion.div>
         </div>
 
