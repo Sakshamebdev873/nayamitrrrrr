@@ -383,7 +383,7 @@ const Chat = () => {
       <div className="w-[20vw] h-full bg-[#3c32b5] flex-shrink-0 flex flex-col">
         <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
           <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
-          <h1 className="text-[20px] font-semibold text-white">Nayay Mitra</h1>
+          <h1 className="text-[20px] font-semibold text-white">Nyay Mitra</h1>
           <button 
             type="button" 
             onClick={handleNewChat} 

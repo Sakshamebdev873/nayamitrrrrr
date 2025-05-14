@@ -307,7 +307,7 @@ const surveyQuestions = [
   "Have you faced discrimination by gender, caste, religion, or other? Briefly explain.",
   "Have you seen or experienced legal violations (e.g., domestic violence, harassment)? Describe.",
   "Do you know how to file an FIR? List the main steps.",
-  "How familiar are you with IPC and CrPC? How do they protect citizens?"
+  "How familiar are you with BNS and BNSS? How do they protect citizens?"
 ];
 export const surveyQuestion = async (req, res) => {
   res.status(200).json({ questions: surveyQuestions });
@@ -319,23 +319,102 @@ const generateGeminiPrompt = (responses) => {
   const [q1, q2, q3, q4, q5] = responses;
 
   return `
-You are NyayaMitr, an AI legal assistant on the Department of Justice website. A user has completed a short legal-awareness survey. Here are their answers:
-
+User Legal Awareness Survey Responses:
 1. Fundamental Rights awareness: ${q1}  
 2. Discrimination experience: ${q2}  
 3. Observed or experienced legal violations: ${q3}  
 4. Knowledge of filing an FIR: ${q4}  
-5. Familiarity with IPC/CrPC and their protections: ${q5}
+5. Familiarity with BNS and BNSS protections: ${q5}
 
-Please provide:
+Analysis Task:
+1. First, identify any direct indicators of rights violations (especially in Q2 and Q3)
+2. Assess the severity level of each concern (low/medium/high)
+3. Consider the user's awareness level (Q1, Q4, Q5) as it affects their ability to address issues
+4. Calculate a percentage likelihood of rights violation based on:
+   - Number of concerning responses
+   - Severity of each concern
+   - User's ability to seek help (awareness factors)
 
-• A one-sentence summary of any rights violations or concerns.   
-• One key helpline number or emergency contact. 
-• One immediate next step (e.g., “Draft an FIR”).   
-• Finally, generate a concise, 1-line prompt starting with \#NyayaPrompt:\ that the user can copy and paste into NyayaMitr for the full, detailed guidance (including FIR drafting, legal provisions, and site tool links). 
-  `;
+Required Output Format:
+"Summary: [1-sentence summary of concerns]
+Helpline: [Relevant contact number]
+Next Step: [Immediate action suggestion]
+Awareness Percentage: XX% 
+Reasoning: [2-3 sentences explaining the percentage]
+#NyayaPrompt: [Concise prompt for detailed guidance]"
+
+Important Notes:
+- The percentage must directly reflect the severity and quantity of issues in the responses
+- Higher percentage for: active violations, discrimination cases, low awareness
+- Lower percentage for: general awareness issues without active violations
+- Be specific about how each response contributes to the percentage
+`;
 };
 
+export const submitSurvey = asyncHandler(async (req, res) => {
+  const { responses } = req.body;
+
+  if (!responses || responses.length !== 5) { // Changed to fixed number 5
+    return res.status(400).json({ error: "Please answer all 5 survey questions." });
+  }
+
+  try {
+    const prompt = generateGeminiPrompt(responses);
+    const result = await ai.models.generateContent({
+      model: "gemini-2.0-flash", // Using more capable model
+      contents: prompt,
+    });
+
+    const fullText = result.text.trim();
+    // console.log("Gemini Raw Output:", fullText); // Log for debugging
+
+    // Enhanced percentage extraction
+    const percentageMatch = fullText.match(/Awareness Percentage:\s*(\d{1,3})%/);
+    let awarenessPercentage = percentageMatch ? parseInt(percentageMatch[1], 10) : null;
+
+    // Validate percentage range
+    if (awarenessPercentage !== null && (awarenessPercentage < 0 || awarenessPercentage > 100)) {
+      awarenessPercentage = null;
+    }
+
+    // Extract other components
+    const summaryMatch = fullText.match(/Summary:\s*(.+?)(?=\nHelpline:|$)/s);
+    const helplineMatch = fullText.match(/Helpline:\s*(.+?)(?=\nNext Step:|$)/s);
+    const nextStepMatch = fullText.match(/Next Step:\s*(.+?)(?=\nAwareness Percentage:|$)/s);
+    const reasoningMatch = fullText.match(/Reasoning:\s*(.+?)(?=\n#NyayaPrompt:|$)/s);
+    const nyayaPromptMatch = fullText.match(/#NyayaPrompt:\s*(.+)/s);
+
+    let suggestion;
+    if (awarenessPercentage === null) {
+      suggestion = "We couldn't determine your risk level. Please contact the National Human Rights Commission at 1800-123-456 for direct assistance.";
+    } else if (awarenessPercentage >= 70) {
+      suggestion = `Urgent attention needed (${awarenessPercentage}% risk). ${nextStepMatch?.[1] || 'Contact legal aid immediately.'}`;
+    } else if (awarenessPercentage >= 40) {
+      suggestion = `Potential concerns (${awarenessPercentage}% risk). ${nextStepMatch?.[1] || 'Consider consulting a legal professional.'}`;
+    } else {
+      suggestion = `Low current risk (${awarenessPercentage}%). ${nextStepMatch?.[1] || 'Stay informed about your rights.'}`;
+    }
+
+    res.status(200).json({
+      message: "Survey analysis completed",
+      summary: summaryMatch?.[1]?.trim() || "No significant issues detected",
+      helpline: helplineMatch?.[1]?.trim() || "National Legal Services Authority: 15100",
+      nextStep: nextStepMatch?.[1]?.trim() || "Review your rights on our website",
+      awarenessPercentage: awarenessPercentage ?? "Unavailable",
+      reasoning: reasoningMatch?.[1]?.trim() || "Insufficient data for detailed analysis",
+      nyayaPrompt: nyayaPromptMatch?.[1]?.trim() || "#NyayaPrompt: Explain my fundamental rights under Indian Constitution",
+      fullAnalysis: fullText
+    });
+
+  } catch (err) {
+    console.error("Survey submission error:", err);
+    res.status(500).json({ 
+      error: "Analysis failed",
+      fallbackHelpline: "National Commission for Women: 7827-170-170",
+      suggestion: "Please try again or contact the helpline directly"
+    });
+  }
+});
 // Helper function to analyze Gemini's response
 const analyzeRightsViolation = (analysis) => {
   // Check for certain keywords in Gemini's response to determine if rights are violated
@@ -355,58 +434,6 @@ const analyzeRightsViolation = (analysis) => {
 
   return false;
 };
-
-export const submitSurvey = asyncHandler(async (req, res) => {
-  const { responses } = req.body;
-
-  if (!responses || responses.length !== surveyQuestions.length) {
-    return res.status(400).json({ error: "Invalid survey data." });
-  }
-
-  try {
-    // Create a prompt asking Gemini to return a percentage likelihood
-    const prompt = generateGeminiPrompt(responses) + `
-Based on the user's responses, estimate the percentage likelihood (from 0% to 100%) that this individual is experiencing a violation of their legal or human rights.
-
-Respond strictly in the following format:
-"Awareness Percentage: XX%"
-Then briefly explain your reasoning in 2–3 sentences.
-`;
-
-    const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
-    });
-
-    const fullText = result.text.trim();
-
-    // Extract percentage using regex
-    const match = fullText.match(/Awareness Percentage:\s*(\d+)%/);
-    const awarenessPercentage = match ? parseInt(match[1], 10) : null;
-
-    let suggestion;
-    if (awarenessPercentage === null) {
-      suggestion = "Could not determine awareness percentage. Please re-submit the survey or contact support.";
-    } else if (awarenessPercentage >= 70) {
-      suggestion = `High likelihood of rights being violated (${awarenessPercentage}%). Please let us assist you immediately.`;
-    } else if (awarenessPercentage >= 40) {
-      suggestion = `Moderate likelihood of rights concern (${awarenessPercentage}%). We recommend seeking professional advice.`;
-    } else {
-      suggestion = `Low likelihood of rights violation (${awarenessPercentage}%). Stay informed and protected.`;
-    }
-
-    res.status(200).json({
-      message: "Survey analysis completed.",
-      awarenessPercentage: awarenessPercentage ?? "Unknown",
-      analysis: fullText,
-      suggestion,
-    });
-
-  } catch (err) {
-    console.error("Survey submission error:", err);
-    res.status(500).json({ error: "Failed to analyze the survey." });
-  }
-});
 
 
 export const suggestAlternativeResolution = async (req, res) => {
