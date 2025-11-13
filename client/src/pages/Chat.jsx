@@ -264,37 +264,37 @@ const Chat = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(formRef.current);
-    const prompt = formData.get("prompt");
-    if (!prompt.trim()) return;
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const formData = new FormData(formRef.current);
+  //   const prompt = formData.get("prompt");
+  //   if (!prompt.trim()) return;
 
-    const userMessage = {
-      role: "user",
-      prompt,
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setLoading(true);
+  //   const userMessage = {
+  //     role: "user",
+  //     prompt,
+  //   };
+  //   setMessages((prev) => [...prev, userMessage]);
+  //   setLoading(true);
 
-    submit(formRef.current, { method: "post" });
+  //   submit(formRef.current, { method: "post" });
 
-    try {
-      const res = await customFetch.post(`/create/${currentSession?.userId}`, {
-        prompt,
-      });
-      const responseMessage = {
-        role: "assistant",
-        response: res.data.response,
-      };
-      setMessages((prev) => [...prev, responseMessage]);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-      formRef.current.reset();
-    }
-  };
+  //   try {
+  //     const res = await customFetch.post(`/create/${currentSession?.userId}`, {
+  //       prompt,
+  //     });
+  //     const responseMessage = {
+  //       role: "assistant",
+  //       response: res.data.response,
+  //     };
+  //     setMessages((prev) => [...prev, responseMessage]);
+  //   } catch (err) {
+  //     console.log(err);
+  //   } finally {
+  //     setLoading(false);
+  //     formRef.current.reset();
+  //   }
+  // };
 
   const Sidebardata = [
     {
@@ -494,11 +494,10 @@ const Chat = () => {
 
         {/* Chat input bar */}
         <div className="p-4 bg-white border-t border-gray-200">
-          <form
+          <Form
             ref={formRef}
             method="post"
             className="flex gap-4 max-w-4xl mx-auto"
-            onSubmit={handleSubmit}
           >
             <button
               type="button"
@@ -530,7 +529,7 @@ const Chat = () => {
             >
               Send
             </button>
-          </form>
+          </Form>
         </div>
       </div>
     </div>

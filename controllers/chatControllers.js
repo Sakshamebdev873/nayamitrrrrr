@@ -224,11 +224,11 @@ export const getHistory = asyncHandler(async (req, res) => {
   // console.log(`Found ${allSessions.length} sessions:`);
   allSessions.forEach((s, i) => {
     const storedId = s.sessionId?.toString().trim();
-    console.log(`Session ${i}:`, {
-      storedId: `"${storedId}"`,
-      match: storedId === cookieSessionId,
-      typeMatch: typeof storedId === typeof cookieSessionId
-    });
+  //   console.log(`Session ${i}:`, {
+  //     storedId: `"${storedId}"`,
+  //     match: storedId === cookieSessionId,
+  //     typeMatch: typeof storedId === typeof cookieSessionId
+  //   });
   });
 
   // 4. Flexible matching (whitespace/case insensitive)
@@ -301,7 +301,7 @@ export const getNearbyJudiciaryOSM = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch judiciary locations." });
   }
 };
-
+// su
 const surveyQuestions = [
   "Do you know any two Fundamental Rights under the Indian Constitution?",
   "Have you faced discrimination by gender, caste, religion, or other? Briefly explain.",
@@ -309,6 +309,7 @@ const surveyQuestions = [
   "Do you know how to file an FIR? List the main steps.",
   "How familiar are you with BNS and BNSS? How do they protect citizens?"
 ];
+
 export const surveyQuestion = async (req, res) => {
   res.status(200).json({ questions: surveyQuestions });
 };

@@ -19,7 +19,7 @@ import SignUp from "./pages/SignUp.jsx";
 import Chat from "./pages/Chat.jsx";
 import { action as signAction } from "./pages/SignUp.jsx";
 import { action as loginAction } from "./pages/LogIn.jsx";
-import { action as chatAction, loader as chatLoader } from "./pages/Chat.jsx";
+import { action as chatAction,loader as chatLoader } from "./pages/Chat.jsx";
 import { loader as historyLoader } from "./pages/History.jsx";
 import PdfReader from "./components/PdfReader.jsx";
 import SafetyHub from "./components/SafetyHub.jsx";
