@@ -11,23 +11,27 @@ import {
 } from "react-router-dom";
 import { Mic, MicOff } from "lucide-react";
 import { LuMessageCirclePlus } from "react-icons/lu";
-import customFetch from "../utils/customFetch";
+import customFetch from "../utils/customFetch"; // Assuming this is your configured axios instance
 import { toast } from "sonner";
 
+// This function handles the form submission on the server-side
 export const action = async ({ request, params }) => {
   const { id } = params;
   const formdata = await request.formData();
   const data = Object.fromEntries(formdata);
   try {
+    // This POST request sends the user's prompt to the backend
     const res = await customFetch.post(`/create/${id}`, data);
     const { msg } = res.data;
-    return msg;
+    return msg; // The action returns a response, triggering a re-render
   } catch (error) {
     console.log(error);
+    toast.error(error?.response?.data?.msg || "An error occurred");
     return error;
   }
 };
 
+// This function loads the initial data for the component
 export const loader = async ({ params }) => {
   try {
     const { id } = params;
@@ -37,10 +41,12 @@ export const loader = async ({ params }) => {
     };
   } catch (error) {
     console.log(error);
+    // Redirect to login if fetching history fails (e.g., unauthorized)
     return redirect("/login");
   }
 };
 
+// A utility function to render markdown text to React elements
 const renderMarkdown = (text) => {
   const lines = text.split("\n");
   const elements = [];
@@ -99,6 +105,7 @@ const renderMarkdown = (text) => {
     let line = lines[i];
 
     if (line.startsWith("```")) {
+      flushList();
       if (!inCodeBlock) {
         inCodeBlock = true;
         codeLines = [];
@@ -152,9 +159,11 @@ const renderMarkdown = (text) => {
         </h1>
       );
     } else if (/^[-*] /.test(line)) {
+      if (isOrdered) flushList();
       isOrdered = false;
       listItems.push(line.replace(/^[-*] /, ""));
     } else if (/^\d+\. /.test(line)) {
+      if (!isOrdered) flushList();
       isOrdered = true;
       listItems.push(line.replace(/^\d+\. /, ""));
     } else if (line.trim() === "") {
@@ -182,23 +191,24 @@ const Chat = () => {
   const inputRef = useRef();
   const { id } = useParams();
   const messagesEndRef = useRef(null);
-  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState(currentSession?.messages || []);
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
 
+  // Update messages when loader data changes (e.g., on navigation)
   useEffect(() => {
     setMessages(currentSession?.messages || []);
   }, [currentSession]);
 
+  // Scroll to the bottom of the chat on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages]);
 
   const startVoiceRecognition = () => {
     if (!("webkitSpeechRecognition" in window)) {
-      alert("Speech Recognition not supported in this browser.");
+      toast.error("Speech Recognition not supported in this browser.");
       return;
     }
 
@@ -206,26 +216,21 @@ const Chat = () => {
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
-
     recognitionRef.current = recognition;
 
-    recognition.onstart = () => {
-      setIsRecording(true);
-    };
+    recognition.onstart = () => setIsRecording(true);
 
     recognition.onresult = (event) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-
+      let interimTranscript = "";
+      let finalTranscript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+        const transcript = event.results[i].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcript;
         } else {
           interimTranscript += transcript;
         }
       }
-
       if (inputRef.current) {
         inputRef.current.value = finalTranscript + interimTranscript;
       }
@@ -233,17 +238,13 @@ const Chat = () => {
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
-      if (event.error !== 'no-speech') {
-        alert("Speech recognition error: " + event.error);
+      if (event.error !== "no-speech") {
+        toast.error("Speech recognition error: " + event.error);
       }
       stopVoiceRecognition();
     };
 
-    recognition.onend = () => {
-      if (isRecording) {
-        recognition.start();
-      }
-    };
+    recognition.onend = () => setIsRecording(false);
 
     recognition.start();
   };
@@ -264,103 +265,50 @@ const Chat = () => {
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const formData = new FormData(formRef.current);
-  //   const prompt = formData.get("prompt");
-  //   if (!prompt.trim()) return;
+  // --- NEW HANDLE SUBMIT FUNCTION ---
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const prompt = formData.get("prompt");
 
-  //   const userMessage = {
-  //     role: "user",
-  //     prompt,
-  //   };
-  //   setMessages((prev) => [...prev, userMessage]);
-  //   setLoading(true);
+    // Prevent submission of empty messages
+    if (!prompt?.trim()) {
+      return;
+    }
 
-  //   submit(formRef.current, { method: "post" });
+    // 1. Optimistically update the UI with the user's message
+    const userMessage = { role: "user", prompt };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-  //   try {
-  //     const res = await customFetch.post(`/create/${currentSession?.userId}`, {
-  //       prompt,
-  //     });
-  //     const responseMessage = {
-  //       role: "assistant",
-  //       response: res.data.response,
-  //     };
-  //     setMessages((prev) => [...prev, responseMessage]);
-  //   } catch (err) {
-  //     console.log(err);
-  //   } finally {
-  //     setLoading(false);
-  //     formRef.current.reset();
-  //   }
-  // };
+    // 2. Programmatically submit the form to the React Router action
+    submit(event.currentTarget, { method: "post" });
+
+    // 3. Reset the form to clear the input field
+    formRef.current.reset();
+  };
 
   const Sidebardata = [
-    {
-      img: "/assist.png",
-      text: "Legal Assistant",
-      path: "/",
-    },
-    {
-      img: "/docu.png",
-      text: "Document Simplifier",
-      path: "/analyst",
-    },
-    {
-      img: "/brain2.png",
-      text: "Roots",
-      path: "/root",
-    },
-    {
-      img: "/docu.png",
-      text: "Draft FIR/RTI",
-      path: "/legalAssistance",
-    },
-    {
-      img: "/w2.png",
-      text: "Cyber Section",
-      path: "/cybersection",
-    },
-    {
-      img: "/history (1).png",
-      text: "Recent Chats",
-      path: `/history/${id}`,
-    },
-    {
-      img: "/laws.png",
-      text: "State Wise Laws",
-      path: "/lawforstate",
-    },
-    {
-      img: "/w1.png",
-      text: "Survey",
-      path: "/survey",
-    },
-    {
-      img: "/n1.png",
-      text: "Case Analysis",
-      path: "/dashboard",
-    },
-    {
-      img: '/case2.png',
-      text: "Case Helper",
-      path: `/caseHelper/${id}`
-    },
-    {
-      img: '/history (1).png',
-      text: "Case History",
-      path: `/caseHistory/${id}`
-    }
+    { img: "/assist.png", text: "Legal Assistant", path: "/" },
+    { img: "/docu.png", text: "Document Simplifier", path: "/analyst" },
+    { img: "/brain2.png", text: "Roots", path: "/root" },
+    { img: "/docu.png", text: "Draft FIR/RTI", path: "/legalAssistance" },
+    { img: "/w2.png", text: "Cyber Section", path: "/cybersection" },
+    { img: "/history (1).png", text: "Recent Chats", path: `/history/${id}`},
+    { img: "/laws.png", text: "State Wise Laws", path: "/lawforstate" },
+    { img: "/w1.png", text: "Survey", path: "/survey" },
+    { img: "/n1.png", text: "Case Analysis", path: "/dashboard" },
+    { img: '/case2.png', text: "Case Helper", path: `/caseHelper/${id}` },
+    { img: '/history (1).png', text: "Case History", path: `/caseHistory/${id}`}
   ];
 
   const handleLogout = async () => {
     try {
       await customFetch.get("/logout");
       toast.success("Successfully logged Out....");
-      return navigate("/");
+      navigate("/");
     } catch (error) {
       console.log(error);
+      toast.error("Logout failed.");
     }
   };
 
@@ -368,6 +316,7 @@ const Chat = () => {
     try {
       setMessages([]);
       await customFetch.get(`/new/${id}`);
+      // After creating a new session, refetch history to update UI
       const { data } = await customFetch.get(`/history/${id}`);
       setMessages(data?.currentSession?.messages || []);
       toast.success("New chat session created");
@@ -384,9 +333,9 @@ const Chat = () => {
         <div className="h-[77px] border-b border-gray-200 flex justify-center items-center gap-4">
           <img src="/chat.png" alt="chat" className="w-[30px] h-[24px]" />
           <h1 className="text-[20px] font-semibold text-white">Nyay Mitra</h1>
-          <button 
-            type="button" 
-            onClick={handleNewChat} 
+          <button
+            type="button"
+            onClick={handleNewChat}
             className="bg-[#3c32b5] text-yellow-300 ml-3 hover:scale-105 transition-all duration-300 p-1 text-2xl"
           >
             <LuMessageCirclePlus />
@@ -396,7 +345,7 @@ const Chat = () => {
           {Sidebardata.map((item, index) => {
             const { img, text, path } = item;
             const isResourceHeader = index === 6;
-            const isCase = index === 8;
+            const isCase = index === 9; // Adjusted index for Case
             return (
               <div key={index}>
                 {isResourceHeader && (
@@ -411,15 +360,15 @@ const Chat = () => {
                 )}
                 <NavLink
                   to={path}
-                  className={() =>
-                    `flex gap-4 py-3.5 px-6 ${
-                      index === 0 
-                        ? "text-yellow-400 bg-white/10 mt-2 rounded-lg"
-                        : "text-white mt-2"
+                  className={({ isActive }) =>
+                    `flex gap-4 py-3.5 px-6 mt-2 ${
+                      isActive
+                        ? "text-yellow-400 bg-white/10 rounded-lg"
+                        : "text-white"
                     }`
                   }
                 >
-                  <img src={img} alt={text} className="w-[18px] h-[16px] text-white/100"/>
+                  <img src={img} alt={text} className="w-[18px] h-[16px] text-white/100" />
                   <p className="font-normal text-[14px] leading-[14px]">
                     {text}
                   </p>
@@ -433,10 +382,10 @@ const Chat = () => {
       {/* Chat Panel */}
       <div className="flex flex-col flex-1 h-full">
         {/* Header */}
-        <div className="flex justify-between items-center h-[77px] bg-[#4338CA] px-4">
+        <div className="flex justify-between items-center h-[77px] bg-[#4338CA] px-4 shadow-md">
           <div className="flex items-center">
             <div className="w-[55px] h-[45px] rounded-2xl flex justify-center items-center bg-white">
-              <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px] text-white" />
+              <img src="/Frame.png" alt="icon" className="w-[41px] h-[36px]" />
             </div>
             <h1 className="text-white text-[20px] font-normal ml-4">
               Legal Assistant
@@ -445,7 +394,7 @@ const Chat = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 cursor-pointer hover:scale-105 transition-all duration-500 hover:bg-red-400 text-white rounded-[8px] shadow-2xl"
+            className="px-4 py-2 bg-red-600 cursor-pointer hover:scale-105 transition-all duration-300 hover:bg-red-500 text-white rounded-[8px] shadow-lg"
           >
             Logout
           </button>
@@ -457,17 +406,21 @@ const Chat = () => {
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`max-w-[75%] p-4 rounded-lg shadow whitespace-pre-wrap ${
-                  msg.role === "user"
-                    ? "bg-white self-end ml-auto border border-gray-300"
-                    : "bg-[#E0E7FF] self-start mr-auto"
-                }`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                {msg.role === "user" ? (
-                  <p className="text-sm">{msg.prompt}</p>
-                ) : (
-                  <div>{renderMarkdown(msg.response)}</div>
-                )}
+                <div
+                  className={`max-w-[75%] p-4 rounded-lg shadow whitespace-pre-wrap ${
+                    msg.role === "user"
+                      ? "bg-white border border-gray-300"
+                      : "bg-[#E0E7FF]"
+                  }`}
+                >
+                  {msg.role === "user" ? (
+                    <p className="text-sm text-gray-800">{msg.prompt}</p>
+                  ) : (
+                    <div>{renderMarkdown(msg.response)}</div>
+                  )}
+                </div>
               </div>
             ))
           ) : (
@@ -484,9 +437,12 @@ const Chat = () => {
             </div>
           )}
           {navigation.state === "submitting" && (
-            <div className="flex items-center gap-2 mt-10 text-center">
-              <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse" />
-              <p className="text-sm text-gray-500">Thinking...</p>
+            <div className="flex justify-start">
+              <div className="max-w-[75%] p-4 rounded-lg shadow bg-[#E0E7FF] flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse delay-75"></div>
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse delay-150"></div>
+              </div>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -494,18 +450,22 @@ const Chat = () => {
 
         {/* Chat input bar */}
         <div className="p-4 bg-white border-t border-gray-200">
+          {/* --- MODIFIED: Added onSubmit to the Form --- */}
           <Form
             ref={formRef}
             method="post"
+            onSubmit={handleSubmit}
             className="flex gap-4 max-w-4xl mx-auto"
           >
             <button
               type="button"
               onClick={toggleRecording}
-              className={`px-3 rounded-md cursor-pointer border ${
-                isRecording ? "bg-red-100 text-red-600" : "bg-gray-100"
-              } border-gray-300 flex items-center justify-center`}
-              title={isRecording ? "Click to stop" : "Click to speak"}
+              className={`p-3 rounded-md cursor-pointer border ${
+                isRecording
+                  ? "bg-red-100 text-red-600 border-red-300"
+                  : "bg-gray-100 border-gray-300"
+              } flex items-center justify-center transition-colors duration-200`}
+              title={isRecording ? "Stop recording" : "Start recording"}
             >
               {isRecording ? (
                 <MicOff className="w-5 h-5" />
@@ -518,14 +478,15 @@ const Chat = () => {
               name="prompt"
               ref={inputRef}
               placeholder={
-                navigation.state === "submitting" ? "Please wait..." : "Ask anything..."
+                navigation.state === "submitting" ? "Nyay Mitra is thinking..." : "Ask anything..."
               }
-              className="flex-1 px-4 h-[40px] border border-[#E5E7EB] shadow rounded-[8px] outline-none"
+              className="flex-1 px-4 h-[44px] border border-[#E5E7EB] shadow-sm rounded-[8px] outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled={navigation.state === "submitting"}
             />
             <button
               type="submit"
-              disabled={loading}
-              className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[40px] hover:scale-104 transition-all duration-500 rounded-[8px]"
+              disabled={navigation.state === "submitting"}
+              className="bg-[#4F46E5] cursor-pointer text-white px-6 h-[44px] hover:bg-indigo-700 transition-all duration-300 rounded-[8px] disabled:bg-indigo-300 disabled:cursor-not-allowed"
             >
               Send
             </button>

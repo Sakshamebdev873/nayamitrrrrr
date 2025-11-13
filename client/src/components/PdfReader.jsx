@@ -1,168 +1,194 @@
-import React, { useState } from 'react';
-import { UploadCloud } from 'lucide-react';
-import { motion } from 'framer-motion';
-import customFetch from '../utils/customFetch';
+import React, { useState, useCallback } from 'react';
+import { UploadCloud, FileText, XCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import customFetch from '../utils/customFetch'; // Your custom axios instance
 
-export default function PdfUploader() {
+// Variants for Framer Motion animations
+const containerVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.5, ease: "easeInOut" }
+  },
+};
+
+const childVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+};
+
+const summaryVariants = {
+    visible: {
+        transition: {
+            staggerChildren: 0.03, // Each child animates 0.03s after the previous one
+        },
+    },
+};
+
+const lineVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+};
+
+export default function ImpressivePdfUploader() {
   const [file, setFile] = useState(null);
   const [summary, setSummary] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  
+  // Using a state machine for clarity: 'idle' -> 'loading' -> 'success' | 'error'
+  const [appState, setAppState] = useState('idle');
 
-  const handleFileChange = async (e) => {
-    const selectedFile = e.target.files[0];
+  const handleFileChange = useCallback(async (selectedFile) => {
+    if (!selectedFile) return;
 
-    if (selectedFile?.type !== 'application/pdf') {
+    if (selectedFile.type !== 'application/pdf') {
       setError('Please upload a valid PDF file.');
+      setAppState('error');
       return;
     }
 
-    setError('');
     setFile(selectedFile);
-    setLoading(true);
+    setError('');
     setSummary('');
+    setAppState('loading');
 
     const formData = new FormData();
     formData.append('pdf', selectedFile);
 
     try {
       const res = await customFetch.post('/analyze', formData);
-      if (res) {
+      if (res.data?.summary) {
         setSummary(res.data.summary);
+        setAppState('success');
       } else {
-        throw new Error(res.data.message || 'Summarization failed.');
+        throw new Error(res.data?.message || 'Summarization failed to return content.');
       }
     } catch (err) {
       console.error(err);
-      setError('Failed to summarize PDF.');
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || 'Failed to summarize the PDF. Please try again.');
+      setAppState('error');
     }
+  }, []);
+
+  const resetState = () => {
+    setFile(null);
+    setSummary('');
+    setError('');
+    setAppState('idle');
+  };
+
+  // --- Drag and Drop Handlers ---
+  const handleDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files[0];
+    handleFileChange(droppedFile);
   };
 
   function renderMarkdown(text) {
-    const lines = text.split('\n');
-    let listItems = [];
-
-    const flushList = (keyPrefix) => {
-      if (listItems.length === 0) return null;
-      const rendered = (
-        <ul key={`ul-${keyPrefix}`} className="list-disc ml-6 mb-2">
-          {listItems.map((item, i) => (
-            <li key={`${keyPrefix}-li-${i}`} dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(item) }} />
-          ))}
-        </ul>
-      );
-      listItems = [];
-      return rendered;
-    };
-
-    const formatInlineMarkdown = (line) => {
-      return line
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>');
-    };
-
-    return lines.flatMap((line, index) => {
-      const trimmed = line.trim();
-
-      if (/^#{1,3} /.test(trimmed)) {
-        const flushed = flushList(index);
-        const level = trimmed.match(/^#+/)[0].length;
-        const text = trimmed.replace(/^#+ /, '');
-        const heading = React.createElement(
-          `h${level}`,
-          {
-            key: `h-${index}`,
-            className: `mt-2 mb-1 font-semibold text-${level === 1 ? '2xl' : level === 2 ? 'xl' : 'lg'} text-blue-600`
-          },
-          text
-        );
-        return [flushed, heading].filter(Boolean);
-      }
-
-      if (/^[-*] /.test(trimmed)) {
-        listItems.push(trimmed.replace(/^[-*] /, ''));
-        return [];
-      }
-
-      const flushed = flushList(index);
-
-      if (trimmed === '') return flushed || null;
-
-      const formatted = (
-        <p
-          key={`p-${index}`}
-          className="text-gray-700 text-sm mb-1"
-          dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(trimmed) }}
-        />
-      );
-
-      return [flushed, formatted].filter(Boolean);
+    return text.split('\n').map((line, index) => {
+        if (line.trim() === '') return null;
+        const bolded = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-800">$1</strong>');
+        return <motion.p key={index} variants={lineVariants} dangerouslySetInnerHTML={{ __html: bolded }} />;
     });
   }
 
   return (
-    <>
-      <div className="flex flex-col px-[20vw] pt-12 p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-12"
-        >
-          <h2 className="text-[24px] font-bold text-center mb-6 text-blue-600">
-            📄 Upload Legal Document for Summary
-          </h2>
-
-          {/* Upload Box */}
-          <div className="flex flex-col items-center gap-6">
-            <div className="sm:w-1/2 border-2 border-dashed border-blue-600 rounded-lg bg-blue-50 text-center p-6 hover:shadow-lg transition">
-              <label className="cursor-pointer w-full block">
-                <UploadCloud className="mx-auto text-blue-600 mb-2" size={40} />
-                <p className="text-sm text-blue-700 font-medium">Click to upload or drag & drop</p>
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-8 overflow-hidden"
+      >
+        <AnimatePresence mode="wait">
+          {appState === 'idle' && (
+            <motion.div key="idle" variants={childVariants} initial="hidden" animate="visible" exit="exit">
+              <h2 className="text-2xl font-bold text-center text-slate-800 mb-2">Document Analysis</h2>
+              <p className="text-center text-slate-500 mb-8">Upload a legal PDF to generate a concise summary.</p>
+              <div
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                className={`relative border-2 border-dashed rounded-xl text-center p-10 transition-all duration-300 ${isDragging ? 'border-sky-500 bg-sky-50 scale-105' : 'border-slate-300 bg-slate-50'}`}
+              >
+                <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
+                  <UploadCloud className={`transition-colors duration-300 ${isDragging ? 'text-sky-600' : 'text-slate-400'}`} size={48} />
+                  <p className="mt-4 text-lg font-semibold text-slate-700">
+                    {isDragging ? 'Drop your PDF here' : 'Drag & drop or click to upload'}
+                  </p>
+                  <p className="text-sm text-slate-500 mt-1">PDF only, max 10MB</p>
+                </label>
                 <input
+                  id="file-upload"
                   type="file"
                   accept="application/pdf"
-                  onChange={handleFileChange}
+                  onChange={(e) => handleFileChange(e.target.files[0])}
                   className="hidden"
                 />
-              </label>
-              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Summary Output */}
-      <div className="flex justify-center items-center pb-12 px-7 gap-1">
-        <div className="shadow-[0px_25px_50px_-12px] mt-12 bg-white w-[95vw] min-h-[40vh] rounded-[12px] p-4">
-          <div className="bg-white border-b border-blue-600 pb-2 mb-4">
-            <h1 className="font-semibold text-[20px] text-blue-600 p-2">
-              📘 Summarized Document
-            </h1>
-          </div>
-
-          {loading ? (
-            <p className="text-blue-600 font-medium mt-4">⏳ Summarizing PDF...</p>
-          ) : summary ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="bg-[#F9F7F2] border border-[#E5E7EB] shadow-md p-4 rounded w-full mt-4"
-            >
-              <div className="text-gray-700 text-sm whitespace-pre-line">
-                {renderMarkdown(summary)}
               </div>
             </motion.div>
-          ) : (
-            <div className="min-w-[90vw] min-h-[35vh] flex justify-center items-center bg-[#F9F7F2] rounded-[8px] text-gray-400">
-              No summary yet. Upload a document to begin.
-            </div>
           )}
-        </div>
-      </div>
-    </>
+
+          {appState === 'loading' && (
+            <motion.div key="loading" variants={childVariants} initial="hidden" animate="visible" exit="exit" className="text-center">
+                <FileText className="mx-auto text-sky-500" size={48} />
+                <p className="mt-4 font-semibold text-slate-700">Analyzing Document:</p>
+                <p className="text-sm text-slate-500 truncate mt-1">{file?.name}</p>
+                <div className="w-full bg-slate-200 rounded-full h-2.5 mt-8 overflow-hidden">
+                    <motion.div 
+                        className="bg-sky-500 h-2.5 rounded-full"
+                        initial={{ width: '0%' }}
+                        animate={{ width: '100%' }}
+                        transition={{ duration: 15, ease: "linear" }} // Simulate long processing time
+                    />
+                </div>
+                <p className="text-xs text-slate-400 mt-2 animate-pulse">This may take a moment...</p>
+            </motion.div>
+          )}
+
+          {(appState === 'success' || appState === 'error') && (
+            <motion.div key="result" variants={childVariants} initial="hidden" animate="visible" exit="exit">
+              <div className="flex justify-between items-center border-b pb-3 mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">Analysis Complete</h3>
+                  <p className="text-sm text-slate-500 truncate">{file?.name}</p>
+                </div>
+                <button onClick={resetState} className="text-sm font-semibold text-sky-600 hover:text-sky-800 transition-colors">
+                  Upload New
+                </button>
+              </div>
+
+              {appState === 'success' && (
+                <div className="max-h-[50vh] overflow-y-auto pr-4 -mr-4">
+                    <motion.div variants={summaryVariants} initial="hidden" animate="visible" className="text-slate-600 space-y-3 whitespace-pre-line text-base leading-relaxed">
+                        {renderMarkdown(summary)}
+                    </motion.div>
+                </div>
+              )}
+
+              {appState === 'error' && (
+                <div className="text-center bg-red-50 border border-red-200 rounded-lg p-6">
+                    <XCircle className="mx-auto text-red-500" size={40}/>
+                    <p className="mt-3 font-semibold text-red-800">An Error Occurred</p>
+                    <p className="text-sm text-red-600 mt-1">{error}</p>
+                    <button onClick={resetState} className="mt-4 bg-red-500 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">
+                        Try Again
+                    </button>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
   );
 }
