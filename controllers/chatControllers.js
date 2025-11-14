@@ -309,6 +309,7 @@ const surveyQuestions = [
   "Do you know how to file an FIR? List the main steps.",
   "How familiar are you with BNS and BNSS? How do they protect citizens?"
 ];
+// cookie setting
 
 export const surveyQuestion = async (req, res) => {
   res.status(200).json({ questions: surveyQuestions });
@@ -831,27 +832,26 @@ export const generateDocument = asyncHandler(async (req, res) => {
 // Helper function for FIR prompt
 export const changeSession = async (req, res) => {
   const { sessionId } = req.body;
+const cookieOptions = {
+  httpOnly: true,
+  signed: true,
+  secure: process.env.NODE_ENV !== "development",
+  sameSite: "Lax",
+  path: "/",
+  maxAge: 24 * 60 * 60 * 1000,
+};
+
+res.cookie("sessionId", sessionId, cookieOptions);
 
   if (!sessionId) {
     return res.status(400).json({ msg: "Session ID is required" });
   }
 
   // Clear existing cookie (must match the same settings)
-  res.clearCookie("sessionId", {
-    path: "/",
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite: "Lax",
-  });
+  res.clearCookie("sessionId",cookieOptions);
 
   // Set new cookie
-  res.cookie("sessionId", sessionId, {
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-    path: "/",
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development", // false in dev, true in prod
-    sameSite: "Lax",
-  });
+  res.cookie("sessionId", sessionId, cookieOptions);
 
   res.status(200).json({ msg: "Session updated", sessionId });
 };

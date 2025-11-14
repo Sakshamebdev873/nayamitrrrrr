@@ -288,7 +288,7 @@ const Chat = () => {
   };
 
   const Sidebardata = [
-    { img: "/assist.png", text: "Legal Assistant", path: "/" },
+    { img: "/assist.png", text: "Legal Assistant", path: `/chat/${id}` },
     { img: "/docu.png", text: "Document Simplifier", path: "/analyst" },
     { img: "/brain2.png", text: "Roots", path: "/root" },
     { img: "/docu.png", text: "Draft FIR/RTI", path: "/legalAssistance" },
@@ -318,7 +318,7 @@ const Chat = () => {
       await customFetch.get(`/new/${id}`);
       // After creating a new session, refetch history to update UI
       const { data } = await customFetch.get(`/history/${id}`);
-      setMessages(data?.currentSession?.messages || []);
+      setMessages(data?.currentSession?.messages);
       toast.success("New chat session created");
     } catch (error) {
       console.log(error);
