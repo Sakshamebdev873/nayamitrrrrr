@@ -191,7 +191,10 @@ const Chat = () => {
   const inputRef = useRef();
   const { id } = useParams();
   const messagesEndRef = useRef(null);
-  const [messages, setMessages] = useState(currentSession?.messages || []);
+const [messages, setMessages] = useState(
+  Array.isArray(currentSession?.messages) ? currentSession.messages : []
+);
+
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();

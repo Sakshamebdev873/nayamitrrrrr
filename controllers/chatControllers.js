@@ -128,7 +128,7 @@ You are “NyayaMitr” an AI legal assistant embedded in the Department of Just
     .join("\n");
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     contents: [
       {
         role: "user",
@@ -146,7 +146,7 @@ You are “NyayaMitr” an AI legal assistant embedded in the Department of Just
   // If new session, create one and push it to the user
   if (!session) {
     const titleResponse = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
@@ -363,7 +363,7 @@ export const submitSurvey = asyncHandler(async (req, res) => {
   try {
     const prompt = generateGeminiPrompt(responses);
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash", // Using more capable model
+      model: "gemini-2.5-flash", // Using more capable model
       contents: prompt,
     });
 
@@ -497,7 +497,7 @@ export const analyzePdf = async (req, res) => {
 
     // ✅ Await the model call
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: `Summarize this legal document:\n\n${extractedText}`,
     });
 
@@ -801,7 +801,7 @@ export const generateDocument = asyncHandler(async (req, res) => {
     }
 
  const result = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     contents : prompt,
   });
 
@@ -984,15 +984,15 @@ Each bullet should be short (max 2 lines), practical, and follow Indian legal pr
   // Generate Gemini content
   const [procedureRes, assistingRes, nextMovesRes] = await Promise.all([
     ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: procedurePrompt }] }]
     }),
     ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: assistingPrompt }] }]
     }),
     ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: nextMovesPrompt }] }]
     }),
   ]);
