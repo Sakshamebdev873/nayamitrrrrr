@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {  AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 

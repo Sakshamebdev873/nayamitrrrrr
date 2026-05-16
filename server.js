@@ -15,6 +15,7 @@ app.use('/api/v1',authRouter)
 app.use('/api/v1',chatRouter)
 
 const port = process.env.PORT || 5200;
+// console.log(process.env.MONGO_URL)
 const start = async () =>{
 try {
     await mongoose.connect(process.env.MONGO_URL)

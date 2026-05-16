@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Form, useActionData, useLoaderData, useNavigation} from "react-router";
+import { Form, useActionData, useNavigation} from "react-router";
 import customFetch from "../utils/customFetch";
 import { toast } from "sonner";
 import { useParams, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from 'framer-motion';
+import {  AnimatePresence } from 'framer-motion';
 import { ChevronRight, FileText, ListChecks, FileSearch, RotateCw } from 'lucide-react';
 
 export const action = async ({ request }) => {
